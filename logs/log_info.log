@@ -1,0 +1,9 @@
+2022-05-15 00:42:51.248 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - Starting CloudDiskApplicationTests on DESKTOP-A1NF3QI with PID 10960 (started by Admin in C:\Users\Admin\JavaProjects\cloud-disk)
+2022-05-15 00:42:51.250 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - The following profiles are active: dev
+2022-05-15 00:45:51.229 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - Starting CloudDiskApplicationTests on DESKTOP-A1NF3QI with PID 3184 (started by Admin in C:\Users\Admin\JavaProjects\cloud-disk)
+2022-05-15 00:45:51.230 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - The following profiles are active: dev
+2022-05-15 00:46:29.231 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - Starting CloudDiskApplicationTests on DESKTOP-A1NF3QI with PID 15416 (started by Admin in C:\Users\Admin\JavaProjects\cloud-disk)
+2022-05-15 00:46:29.234 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - The following profiles are active: dev
+2022-05-15 00:48:16.750 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - Starting CloudDiskApplicationTests on DESKTOP-A1NF3QI with PID 13608 (started by Admin in C:\Users\Admin\JavaProjects\cloud-disk)
+2022-05-15 00:48:16.752 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - The following profiles are active: dev
+2022-05-15 00:48:20.601 [main] INFO  cuit.pymjl.CloudDiskApplicationTests - Started CloudDiskApplicationTests in 4.244 seconds (JVM running for 5.289)
