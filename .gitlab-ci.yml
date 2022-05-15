@@ -120,7 +120,7 @@ before_script:
 variables:
   jar_name: cloud-disk-0.0.1-SNAPSHOT.jar
   java_path: /usr/lib/jvm/java-1.8.0-openjdk-1.8.0.312.b07-1.el7_9.x86_64/bin
-  TAG: cloud-disk-0.0.1-SNAPSHOT.jar:v1.0  # 镜像名称
+  TAG: cloud-disk:v1.0  # 镜像名称
   CONTAINER_NAME: cloud-disk-service
   PORT: 8976
   DOCKER_DRIVER: overlay2
