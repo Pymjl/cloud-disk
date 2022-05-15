@@ -2,7 +2,9 @@ package cuit.pymjl.controller;
 
 
 import cn.hutool.captcha.CircleCaptcha;
+import cuit.pymjl.constant.ResultEnum;
 import cuit.pymjl.entity.dto.UserDTO;
+import cuit.pymjl.entity.dto.UserInfoDTO;
 import cuit.pymjl.result.Result;
 import cuit.pymjl.result.ResultUtil;
 import cuit.pymjl.service.UserService;
@@ -57,8 +59,14 @@ public class UserController {
 
     @PostMapping("/login")
     public Result<String> login(@Valid @RequestBody UserDTO userDTO) {
-        System.out.println(userDTO);
-        return null;
+        String token = userService.login(userDTO);
+        return ResultUtil.success(token);
+    }
+
+    @PostMapping("/register")
+    public Result<String> register(@Valid @RequestBody UserInfoDTO userInfoDTO) {
+        userService.register(userInfoDTO);
+        return ResultUtil.success(ResultEnum.REGISTER_SUCCESS);
     }
 
 }

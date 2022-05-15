@@ -17,7 +17,11 @@ public enum ResultEnum {
     /**
      * 成功
      */
-    OK("操作成功", true);
+    OK("操作成功", true),
+    /**
+     * 注册成功
+     */
+    REGISTER_SUCCESS("注册成功", true);
 
     private String msg;
     private Boolean succeed;
