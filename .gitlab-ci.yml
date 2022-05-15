@@ -144,26 +144,13 @@ maven-build:
     paths: 
       - ./target/$jar_name
 
-
-build-master: # 定义的 Jobs 之一，用于构建 Docker 镜像。负责执行 deploy 这一流程。具体执行 build 和 run。
-  stage: deploy
-  tags:
-    - docker deploy
-  script:
-    - docker stop $CONTAINER_NAME
-    - docker rmi -f $TAG
-    - docker build -t $TAG . # 构件镜像
-    - docker rm -f $CONTAINER_NAME || true # 删除容器
-    - docker run -d --name $CONTAINER_NAME -p $PORT:$PORT $TAG # 运行容器
-  only: # 指定哪些branch的push commit会触发执行该job，本例子指定只有master才会执行deploy这个job
-    - master
-
 build-main: # 定义的 Jobs 之一，用于构建 Docker 镜像。负责执行 deploy 这一流程。具体执行 build 和 run。
   stage: deploy
   tags:
     - main deploy
   script:
-    - docker rmi -f $TAG
+#    - docker stop $CONTAINER_NAME
+#    - docker rmi -f $TAG
     - docker build -t $TAG . # 构件镜像
     - docker rm -f $CONTAINER_NAME || true # 删除容器
     - docker run -d --name $CONTAINER_NAME -p $PORT:$PORT $TAG # 运行容器
