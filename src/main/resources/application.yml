@@ -2,7 +2,7 @@ server:
   port: 8976
 spring:
   application:
-    name: cloud-disk
+    name: cloud-disk-service
   profiles:
     active: dev
   datasource:

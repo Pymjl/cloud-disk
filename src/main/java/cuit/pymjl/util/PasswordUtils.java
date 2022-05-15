@@ -24,6 +24,13 @@ public class PasswordUtils {
         return encrypt(password, SALT);
     }
 
+    /**
+     * 匹配
+     *
+     * @param password          密码
+     * @param encryptedPassword 加密密码
+     * @return {@code Boolean}
+     */
     public static Boolean match(String password, String encryptedPassword) {
         return match(password, encryptedPassword, SALT);
     }
