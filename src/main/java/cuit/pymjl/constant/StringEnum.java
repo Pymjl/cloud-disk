@@ -9,7 +9,7 @@ public enum StringEnum {
     /**
      * TODO 用户默认头像,用fdfs
      */
-    USER_DEFAULT_AVATAR("sadadasdas");
+    USER_DEFAULT_AVATAR("user/avatar/default/default.jpg");
     private String value;
 
     StringEnum() {
