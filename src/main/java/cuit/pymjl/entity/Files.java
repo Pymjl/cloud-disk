@@ -47,11 +47,6 @@ public class Files implements Serializable {
     private String filePath;
 
     /**
-     * 文件类型,dir或者file
-     */
-    private String fileType;
-
-    /**
      * 拥有者的id
      */
     private Long ownerId;
@@ -66,6 +61,11 @@ public class Files implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
+
+    /**
+     * 删除时间
+     */
+    private Date updateTime;
 
 
 }
