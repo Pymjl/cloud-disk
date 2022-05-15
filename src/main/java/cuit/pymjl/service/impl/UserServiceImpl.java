@@ -12,6 +12,7 @@ import cuit.pymjl.constant.StringEnum;
 import cuit.pymjl.entity.User;
 import cuit.pymjl.entity.dto.UserDTO;
 import cuit.pymjl.entity.dto.UserInfoDTO;
+import cuit.pymjl.entity.vo.UserVO;
 import cuit.pymjl.exception.AppException;
 import cuit.pymjl.mapper.UserMapper;
 import cuit.pymjl.service.UserService;
@@ -23,7 +24,6 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
-import java.sql.Wrapper;
 import java.util.*;
 
 /**
@@ -124,7 +124,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("校验通过，开始发放token......");
         String token = JwtUtils.generateToken(user.getId(), user.getNickName());
         //token放入redis,过期时间为token过期时间
-        redisUtil.set(user.getId().toString(), token, JwtUtils.getTokenExpiredTime());
+        redisUtil.set(token, user.getId().toString(), JwtUtils.getTokenExpiredTime());
         return token;
     }
 
@@ -148,10 +148,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .password(PasswordUtils.encrypt(userInfoDTO.getPassword()))
                 .avatar(userInfoDTO.getAvatar())
                 .identity(IdentityEnum.USER.getIdentity())
-                .maxSpace(Integer.toUnsignedLong(IntegerEnum.ZERO.getValue()))
-                .usedSpace(Integer.toUnsignedLong(IntegerEnum.ZERO.getValue()))
+                .maxSpace(Integer.toUnsignedLong(IntegerEnum.MAX_SPACE_SIZE.getValue()))
+                .usedSpace(Integer.toUnsignedLong(IntegerEnum.INITIAL_SPACE_SIZE.getValue()))
                 .build();
         return baseMapper.insert(user) == 1;
+    }
+
+    @Override
+    public UserVO queryUserById(Long id) {
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<User>()
+                .eq(User::getId, id);
+        User user = baseMapper.selectOne(wrapper);
+        UserVO userVO = new UserVO();
+        BeanUtil.copyProperties(user, userVO);
+        return userVO;
     }
 
     /**

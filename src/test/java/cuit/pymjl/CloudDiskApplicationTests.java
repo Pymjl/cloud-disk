@@ -6,6 +6,7 @@ import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.digest.SM3;
 import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
+import cuit.pymjl.service.UserService;
 import cuit.pymjl.util.AliyunUtils;
 import cuit.pymjl.util.JwtUtils;
 import cuit.pymjl.util.PasswordUtils;
@@ -26,6 +27,9 @@ class CloudDiskApplicationTests {
 
     @Resource
     RedisUtil redisUtil;
+
+    @Resource
+    UserService userService;
 
     @Test
     void contextLoads() throws SQLException {
@@ -71,6 +75,11 @@ class CloudDiskApplicationTests {
     @Test
     void testJwt() {
         System.out.println(JwtUtils.generateToken(1L, "pymjl"));
+    }
+
+    @Test
+    void testUser() {
+        System.out.println(userService.queryUserById(1L));
     }
 
 

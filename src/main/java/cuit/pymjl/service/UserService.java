@@ -5,6 +5,7 @@ import cuit.pymjl.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cuit.pymjl.entity.dto.UserDTO;
 import cuit.pymjl.entity.dto.UserInfoDTO;
+import cuit.pymjl.entity.vo.UserVO;
 
 /**
  * <p>
@@ -49,7 +50,16 @@ public interface UserService extends IService<User> {
      * @param userInfoDTO 用户信息dto
      * @return {@code Boolean}
      */
+    @SuppressWarnings("all")
     Boolean register(UserInfoDTO userInfoDTO);
+
+    /**
+     * 根据用户ID查询用户
+     *
+     * @param id id
+     * @return {@code UserVO}
+     */
+    UserVO queryUserById(Long id);
 
 
 }

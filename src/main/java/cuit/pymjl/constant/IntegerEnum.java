@@ -7,9 +7,13 @@ package cuit.pymjl.constant;
  **/
 public enum IntegerEnum {
     /**
-     * 零
+     * 初始的空间大小，默认0 MB
      */
-    ZERO(0);
+    INITIAL_SPACE_SIZE(0),
+    /**
+     * 用户的最大空间大小
+     */
+    MAX_SPACE_SIZE(2048);
     private Integer value;
 
     public Integer getValue() {

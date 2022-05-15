@@ -1,50 +1,33 @@
-package cuit.pymjl.entity;
+package cuit.pymjl.entity.vo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
 import java.util.Date;
 
-import lombok.*;
-
 /**
- * <p>
- *
- * </p>
- *
- * @author pymjl
- * @since 2022-05-14
- */
-@Getter
-@Setter
-@ToString
-@Builder
+ * @author Pymjl
+ * @version 1.0
+ * @date 2022/5/15 23:58
+ **/
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("t_user")
-public class User implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
+public class UserVO {
     /**
      * 主键ID，自增
      */
-    @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
     /**
      * 用户名，学生邮箱,唯一，登录输入的账号
      */
     private String username;
-
-    /**
-     * 密码
-     */
-    private String password;
 
     /**
      * 昵称
@@ -74,14 +57,10 @@ public class User implements Serializable {
     /**
      * 创建时间
      */
-    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /**
      * 更新时间
      */
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
-
-
 }
