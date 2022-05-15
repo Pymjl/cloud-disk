@@ -45,7 +45,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public CircleCaptcha getImageVerificationCode(String uid) {
         log.info("开始生成验证码.........");
         //定义图形验证码的长、宽、验证码字符数、干扰元素个数
-        CircleCaptcha captcha = CaptchaUtil.createCircleCaptcha(200, 100, VERIFY_CODE_LENGTH, 40);
+        CircleCaptcha captcha = CaptchaUtil.createCircleCaptcha(200, 100, VERIFY_CODE_LENGTH, 30);
         //获取图片验证码的文本串
         String code = captcha.getCode();
         //将文本串放入redis,uid作为Key,code作为value

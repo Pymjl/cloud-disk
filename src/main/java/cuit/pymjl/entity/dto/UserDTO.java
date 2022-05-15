@@ -21,7 +21,7 @@ import javax.validation.constraints.NotBlank;
 @ToString
 public class UserDTO {
     @Email(message = "用户名格式错误，必须为邮箱")
-    private String userName;
+    private String username;
 
     @Length(min = 6, max = 255, message = "密码至少为6个字符")
     private String password;

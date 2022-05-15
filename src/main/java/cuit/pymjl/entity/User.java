@@ -39,7 +39,7 @@ public class User implements Serializable {
     /**
      * 用户名，学生邮箱,唯一，登录输入的账号
      */
-    private String userName;
+    private String username;
 
     /**
      * 密码
