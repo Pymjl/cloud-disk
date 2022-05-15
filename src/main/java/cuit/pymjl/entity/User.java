@@ -37,7 +37,7 @@ public class User implements Serializable {
     private Long id;
 
     /**
-     * 用户名，学生学号,唯一，登录输入的账号
+     * 用户名，学生邮箱,唯一，登录输入的账号
      */
     private String userName;
 
@@ -50,11 +50,6 @@ public class User implements Serializable {
      * 昵称
      */
     private String nickName;
-
-    /**
-     * 邮箱账号
-     */
-    private String email;
 
     /**
      * 电话，可为空

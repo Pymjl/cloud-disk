@@ -14,6 +14,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import javax.annotation.Resource;
 import javax.sql.DataSource;
 import java.sql.SQLException;
+import java.util.UUID;
 
 @SpringBootTest
 class CloudDiskApplicationTests {
@@ -49,7 +50,7 @@ class CloudDiskApplicationTests {
 
     @Test
     void testMail() {
-        MailUtil.send("2865218924@qq.com", "测试", "邮件来自Hutool测试", false);
+        MailUtil.send("pymjl@qq.com", "测试", "邮件来自Hutool测试", false);
     }
 
     @Test
