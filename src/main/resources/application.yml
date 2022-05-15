@@ -70,8 +70,7 @@ aliyun:
       #地域节点参数
       endpoint: oss-cn-shanghai.aliyuncs.com
       #自己的AccessKey id和密钥参数
-      keyId: LTAI5tSFbeqZShDcFWcddsXY
-      keySecret: Nr18eM6SbRTt9b4osifKzppcQjh1AW
+      keyId: LTAI5t67HB3DcZyQhrDtfkCz
+      keySecret: HabwxAzd3DL6D1UOJy1mlnBj4rk0lq
       #bucket参数 可以在控制台创建，也可以使用java代码创建
-      bucketName: ylitech-xinan
-      urlPrefix: https://iscsp-oss.oss-cn-shanghai.aliyuncs.com/
+      bucketName: pymjl-cloud-disk

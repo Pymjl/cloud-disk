@@ -149,8 +149,8 @@ build-main: # 定义的 Jobs 之一，用于构建 Docker 镜像。负责执行 
   tags:
     - main deploy
   script:
-#    - docker stop $CONTAINER_NAME
-#    - docker rmi -f $TAG
+    - docker stop $CONTAINER_NAME
+    - docker rmi -f $TAG
     - docker build -t $TAG . # 构件镜像
     - docker rm -f $CONTAINER_NAME || true # 删除容器
     - docker run -d --name $CONTAINER_NAME -p $PORT:$PORT $TAG # 运行容器

@@ -22,4 +22,8 @@ public class ResultUtil {
     public static Result<String> fail(String message) {
         return new Result<>(false, message);
     }
+
+    public static <T> Result<T> fail(T data) {
+        return new Result<>(data, ResultEnum.UNKNOWN_MISTAKE);
+    }
 }

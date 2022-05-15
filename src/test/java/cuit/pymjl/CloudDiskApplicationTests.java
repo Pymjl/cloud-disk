@@ -6,6 +6,7 @@ import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.digest.SM3;
 import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
+import cuit.pymjl.util.AliyunUtils;
 import cuit.pymjl.util.PasswordUtils;
 import cuit.pymjl.util.RedisUtil;
 import org.junit.jupiter.api.Test;
@@ -58,6 +59,11 @@ class CloudDiskApplicationTests {
         String encrypt = PasswordUtils.encrypt("12346");
         System.out.println(encrypt);
         System.out.println(PasswordUtils.match("123456", encrypt));
+    }
+
+    @Test
+    void testAliyunUtil(){
+        AliyunUtils.makeDir("test/testDir/");
     }
 
 

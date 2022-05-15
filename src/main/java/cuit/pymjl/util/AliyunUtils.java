@@ -85,8 +85,6 @@ public class AliyunUtils {
 
     private static String bucketName;
 
-    private static String urlPrefix;
-
     /**
      * 上传文件
      *
@@ -250,9 +248,9 @@ public class AliyunUtils {
     /**
      * 截断目录
      *
-     * @param objectName
-     * @param prefix
-     * @return
+     * @param objectName 对象名
+     * @param prefix     前缀
+     * @return String
      */
     private static String subDirName(String objectName, String prefix) {
         int star = 0;
@@ -291,6 +289,7 @@ public class AliyunUtils {
      *
      * @return OssPolicyResult
      */
+    @SuppressWarnings("all")
     public static OssPolicyResult getPolicy() {
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
@@ -564,9 +563,5 @@ public class AliyunUtils {
         AliyunUtils.bucketName = bucketName;
     }
 
-    @Value("${aliyun.oss.file.urlPrefix}")
-    public void setUrlPrefix(String urlPrefix) {
-        AliyunUtils.urlPrefix = urlPrefix;
-    }
 
 }
