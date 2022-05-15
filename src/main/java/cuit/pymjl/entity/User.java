@@ -52,9 +52,9 @@ public class User implements Serializable {
     private String nickName;
 
     /**
-     * 电话，可为空
+     * 头像
      */
-    private String phone;
+    private String avatar;
 
     /**
      * 该用户已经使用的云盘空间，为后面扩展做可能

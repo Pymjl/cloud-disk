@@ -7,6 +7,7 @@ import cn.hutool.crypto.digest.SM3;
 import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
 import cuit.pymjl.util.AliyunUtils;
+import cuit.pymjl.util.JwtUtils;
 import cuit.pymjl.util.PasswordUtils;
 import cuit.pymjl.util.RedisUtil;
 import org.junit.jupiter.api.Test;
@@ -33,8 +34,9 @@ class CloudDiskApplicationTests {
 
     @Test
     void testRedis() {
-        redisUtil.set("k1", "v1");
-        System.out.println(redisUtil.get("k1"));
+//        redisUtil.set("k1", "v1");
+//        System.out.println(redisUtil.get("k1"));
+        System.out.println(redisUtil.del("k2"));
     }
 
     @Test
@@ -62,8 +64,13 @@ class CloudDiskApplicationTests {
     }
 
     @Test
-    void testAliyunUtil(){
+    void testAliyunUtil() {
         AliyunUtils.makeDir("test/testDir/");
+    }
+
+    @Test
+    void testJwt() {
+        System.out.println(JwtUtils.generateToken(1L, "pymjl"));
     }
 
 

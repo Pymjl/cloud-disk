@@ -3,6 +3,8 @@ package cuit.pymjl.service;
 import cn.hutool.captcha.CircleCaptcha;
 import cuit.pymjl.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import cuit.pymjl.entity.dto.UserDTO;
+import cuit.pymjl.entity.dto.UserInfoDTO;
 
 /**
  * <p>
@@ -32,6 +34,22 @@ public interface UserService extends IService<User> {
      * @return {@code String}
      */
     String getEmailVerifyCode(String uid, String code, String email);
+
+    /**
+     * 登录
+     *
+     * @param userDTO 用户dto
+     * @return {@code String}
+     */
+    String login(UserDTO userDTO);
+
+    /**
+     * 注册
+     *
+     * @param userInfoDTO 用户信息dto
+     * @return {@code Boolean}
+     */
+    Boolean register(UserInfoDTO userInfoDTO);
 
 
 }
