@@ -1,6 +1,5 @@
 package cuit.pymjl.handler;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import cuit.pymjl.exception.AppException;
 import cuit.pymjl.result.Result;
 import cuit.pymjl.result.ResultUtil;
@@ -13,10 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import javax.validation.ValidationException;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 /**
