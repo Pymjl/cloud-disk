@@ -11,7 +11,7 @@
  Target Server Version : 50650
  File Encoding         : 65001
 
- Date: 15/05/2022 16:57:35
+ Date: 16/05/2022 10:57:40
 */
 
 SET NAMES utf8mb4;
@@ -41,7 +41,7 @@ CREATE TABLE `t_user`  (
   `username` varchar(190) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '用户名，用户邮箱,唯一，登录输入的账号',
   `password` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '密码',
   `nick_name` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '昵称',
-  `phone` char(11) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '电话，可为空',
+  `avatar` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '头像',
   `used_space` bigint(20) NOT NULL COMMENT '该用户已经使用的云盘空间，为后面扩展做可能',
   `max_space` bigint(20) NOT NULL COMMENT '该用户所拥有的最大的云盘空间，为后面扩展做可能',
   `identity` int(11) NOT NULL DEFAULT 0 COMMENT '身份，默认0，0为用户，1为管理员',
@@ -49,6 +49,6 @@ CREATE TABLE `t_user`  (
   `update_time` datetime(0) NOT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`) USING BTREE,
   UNIQUE INDEX `'unqiue_user_name'`(`username`) USING BTREE
-) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Compact;
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Compact;
 
 SET FOREIGN_KEY_CHECKS = 1;

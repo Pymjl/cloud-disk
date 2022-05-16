@@ -40,16 +40,6 @@ public class UserVO {
     private String avatar;
 
     /**
-     * 该用户已经使用的云盘空间，为后面扩展做可能，单位MB
-     */
-    private Long usedSpace;
-
-    /**
-     * 该用户所拥有的最大的云盘空间，为后面扩展做可能，单位MB
-     */
-    private Long maxSpace;
-
-    /**
      * 身份，默认0，0为用户，1为管理员
      */
     private Integer identity;

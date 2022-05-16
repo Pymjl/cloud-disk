@@ -6,6 +6,7 @@ import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.digest.SM3;
 import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
+import cuit.pymjl.constant.StringEnum;
 import cuit.pymjl.service.UserService;
 import cuit.pymjl.util.AliyunUtils;
 import cuit.pymjl.util.JwtUtils;

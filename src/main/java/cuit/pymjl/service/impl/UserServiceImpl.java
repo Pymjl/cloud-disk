@@ -17,6 +17,7 @@ import cuit.pymjl.exception.AppException;
 import cuit.pymjl.mapper.UserMapper;
 import cuit.pymjl.service.UserService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import cuit.pymjl.util.AliyunUtils;
 import cuit.pymjl.util.JwtUtils;
 import cuit.pymjl.util.PasswordUtils;
 import cuit.pymjl.util.RedisUtil;
@@ -161,6 +162,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         User user = baseMapper.selectOne(wrapper);
         UserVO userVO = new UserVO();
         BeanUtil.copyProperties(user, userVO);
+        userVO.setAvatar(AliyunUtils.findFileInfo(user.getAvatar()).getLink());
         return userVO;
     }
 

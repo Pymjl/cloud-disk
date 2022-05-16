@@ -57,7 +57,7 @@ logging:
 
 jwt:
   #设置token的过期时间，单位为秒
-  token-expired-time: 2592000 #一个月
+  token-expired-time: 36000 #10小时
   #设置token的id
   id: tokenId
   #设置密钥

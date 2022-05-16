@@ -2,9 +2,12 @@ package cuit.pymjl.controller;
 
 
 import cn.hutool.captcha.CircleCaptcha;
+import cn.hutool.core.util.StrUtil;
 import cuit.pymjl.constant.ResultEnum;
 import cuit.pymjl.entity.dto.UserDTO;
 import cuit.pymjl.entity.dto.UserInfoDTO;
+import cuit.pymjl.entity.vo.UserVO;
+import cuit.pymjl.exception.AppException;
 import cuit.pymjl.result.Result;
 import cuit.pymjl.result.ResultUtil;
 import cuit.pymjl.service.UserService;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
@@ -53,6 +57,7 @@ public class UserController {
                                         @NotBlank(message = "图片验证码不能为空") @RequestParam("code") String code,
                                         @Email(message = "用户名格式异常,用户名必须为邮箱") @RequestParam("username") String email) {
         //将key作为结果返回
+        System.out.println(uid);
         String key = userService.getEmailVerifyCode(uid, code, email);
         return ResultUtil.success(key);
     }
@@ -67,6 +72,16 @@ public class UserController {
     public Result<String> register(@Valid @RequestBody UserInfoDTO userInfoDTO) {
         userService.register(userInfoDTO);
         return ResultUtil.success(ResultEnum.REGISTER_SUCCESS);
+    }
+
+    @GetMapping("/user/get")
+    public Result<UserVO> getMyUserInfo(HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        if (StrUtil.isBlank(userId)) {
+            throw new AppException("发生未知错误，用户ID为空");
+        }
+        UserVO userVO = userService.queryUserById(Long.parseLong(userId));
+        return ResultUtil.success(userVO);
     }
 
 }
