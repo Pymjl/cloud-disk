@@ -150,7 +150,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         User user = User.builder()
                 .username(userInfoDTO.getUsername())
-                .nickName(userInfoDTO.getNickName())
+                .nickName(userInfoDTO.getNickname())
                 .password(PasswordUtils.encrypt(userInfoDTO.getPassword()))
                 .avatar(userInfoDTO.getAvatar())
                 .identity(IdentityEnum.USER.getIdentity())
@@ -231,6 +231,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!redisUtil.del(token)) {
             throw new AppException("发生未知错误，登出失败");
         }
+    }
+
+    @Override
+    public void updatePassword(String password, Long userId) {
+        new LambdaUpdateChainWrapper<>(baseMapper)
+                .eq(User::getId, userId)
+                .set(User::getPassword, PasswordUtils.encrypt(password))
+                .set(User::getUpdateTime, new Date())
+                .update();
     }
 
     /**

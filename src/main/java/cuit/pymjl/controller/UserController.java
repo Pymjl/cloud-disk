@@ -11,6 +11,7 @@ import cuit.pymjl.exception.AppException;
 import cuit.pymjl.result.Result;
 import cuit.pymjl.result.ResultUtil;
 import cuit.pymjl.service.UserService;
+import org.hibernate.validator.constraints.Length;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -22,6 +23,8 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
 /**
@@ -85,7 +88,7 @@ public class UserController {
 
     @PatchMapping("/user/avatar")
     public Result<String> updateAvatar(HttpServletRequest request,
-                                       @RequestParam("file") MultipartFile file) {
+                                       @NotNull(message = "文件不能为空") @RequestParam("file") MultipartFile file) {
         String userId = (String) request.getAttribute("userId");
         check(userId);
         String avatar = userService.updateAvatar(Long.parseLong(userId), file);
@@ -117,7 +120,17 @@ public class UserController {
         String token = (String) request.getAttribute("token");
         check(userId, token);
         userService.resetPassword(verifyKey, verifyCode, token, Long.parseLong(userId));
-        return ResultUtil.success("重置密码成功，请重新登录");
+        return ResultUtil.success(true, "重置密码成功，请重新登录");
+    }
+
+    @PatchMapping("/user/password")
+    public Result<String> updatePassword(@Length(min = 6, max = 255, message = "密码长度至少为6位") @RequestParam("password") String password,
+                                         HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        userService.updatePassword(password, Long.parseLong(userId));
+        return ResultUtil.success();
+
     }
 
     /**

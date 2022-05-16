@@ -96,5 +96,13 @@ public interface UserService extends IService<User> {
      */
     void resetPassword(String verifyKey, String verifyCode, String token, Long userId);
 
+    /**
+     * 更新密码
+     *
+     * @param password 密码
+     * @param userId   用户id
+     */
+    void updatePassword(String password, Long userId);
+
 
 }

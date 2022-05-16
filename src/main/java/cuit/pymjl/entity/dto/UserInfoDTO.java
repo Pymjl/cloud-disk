@@ -33,7 +33,7 @@ public class UserInfoDTO {
      * 昵称
      */
     @NotBlank(message = "昵称不能为空")
-    private String nickName;
+    private String nickname;
 
     /**
      * 头像，允许空

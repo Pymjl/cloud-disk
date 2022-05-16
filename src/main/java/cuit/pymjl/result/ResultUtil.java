@@ -15,8 +15,8 @@ public class ResultUtil {
         return new Result<>(data, ResultEnum.OK);
     }
 
-    public static Result<String> success(String msg) {
-        return new Result<>(true, msg);
+    public static Result<String> success(Boolean succeed, String message) {
+        return new Result<>(succeed, message);
     }
 
     public static Result<String> success(ResultEnum resultEnum) {
