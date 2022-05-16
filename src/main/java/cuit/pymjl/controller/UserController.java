@@ -13,6 +13,7 @@ import cuit.pymjl.result.ResultUtil;
 import cuit.pymjl.service.UserService;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.ServletOutputStream;
@@ -77,11 +78,24 @@ public class UserController {
     @GetMapping("/user/info")
     public Result<UserVO> getMyUserInfo(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
+        checkUserId(userId);
+        UserVO userVO = userService.queryUserById(Long.parseLong(userId));
+        return ResultUtil.success(userVO);
+    }
+
+    @PatchMapping("/user/avatar")
+    public Result<String> updateAvatar(HttpServletRequest request,
+                                       @RequestParam("file") MultipartFile file) {
+        String userId = (String) request.getAttribute("userId");
+        checkUserId(userId);
+        String avatar = userService.updateAvatar(Long.parseLong(userId), file);
+        return ResultUtil.success(avatar);
+    }
+
+    private void checkUserId(String userId) {
         if (StrUtil.isBlank(userId)) {
             throw new AppException("发生未知错误，用户ID为空");
         }
-        UserVO userVO = userService.queryUserById(Long.parseLong(userId));
-        return ResultUtil.success(userVO);
     }
 
 }

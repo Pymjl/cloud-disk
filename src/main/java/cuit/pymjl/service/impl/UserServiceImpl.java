@@ -6,6 +6,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
 import cuit.pymjl.constant.IdentityEnum;
 import cuit.pymjl.constant.IntegerEnum;
 import cuit.pymjl.constant.StringEnum;
@@ -23,6 +24,7 @@ import cuit.pymjl.util.PasswordUtils;
 import cuit.pymjl.util.RedisUtil;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -164,6 +166,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         BeanUtil.copyProperties(user, userVO);
         userVO.setAvatar(AliyunUtils.findFileInfo(user.getAvatar()).getLink());
         return userVO;
+    }
+
+    @Override
+    public String updateAvatar(Long id, MultipartFile file) {
+        //获取文件前缀
+        String prefix = StringEnum.USER_AVATAR_PREFIX.getValue() + id + "/";
+        String name = file.getOriginalFilename();
+        String fileName = prefix + name;
+        log.info("文件对象名为==>[{}],开始上传到阿里云OSS服务.......", fileName);
+        AliyunUtils.upload(fileName, file);
+        log.info("上传成功");
+        //写入数据库
+        new LambdaUpdateChainWrapper<>(baseMapper)
+                .eq(User::getId, id)
+                .set(User::getAvatar, fileName)
+                .set(User::getUpdateTime, new Date())
+                .update();
+        return AliyunUtils.findFileInfo(fileName).getLink();
     }
 
     /**

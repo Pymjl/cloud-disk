@@ -6,6 +6,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import cuit.pymjl.entity.dto.UserDTO;
 import cuit.pymjl.entity.dto.UserInfoDTO;
 import cuit.pymjl.entity.vo.UserVO;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * <p>
@@ -60,6 +61,16 @@ public interface UserService extends IService<User> {
      * @return {@code UserVO}
      */
     UserVO queryUserById(Long id);
+
+    /**
+     * 更新《阿凡达》
+     * 更新头像
+     *
+     * @param id   id
+     * @param file 文件
+     * @return {@code String}
+     */
+    String updateAvatar(Long id, MultipartFile file);
 
 
 }
