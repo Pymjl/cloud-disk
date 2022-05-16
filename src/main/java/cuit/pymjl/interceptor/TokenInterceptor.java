@@ -1,7 +1,11 @@
 package cuit.pymjl.interceptor;
 
 import cn.hutool.core.util.StrUtil;
+import cuit.pymjl.constant.IdentityEnum;
+import cuit.pymjl.constant.StringEnum;
+import cuit.pymjl.entity.vo.UserVO;
 import cuit.pymjl.exception.AppException;
+import cuit.pymjl.service.UserService;
 import cuit.pymjl.util.JwtUtils;
 import cuit.pymjl.util.RedisUtil;
 import io.jsonwebtoken.Claims;
@@ -24,6 +28,8 @@ public class TokenInterceptor implements HandlerInterceptor {
     private static final String BEARER = "Bearer ";
     @Resource
     RedisUtil redisUtil;
+    @Resource
+    UserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -40,11 +46,25 @@ public class TokenInterceptor implements HandlerInterceptor {
                     throw new AppException("token已过期,请重新登录");
                 }
                 log.info("获取到的用户ID==>[{}]", userId);
+                //进行简单的鉴权
+                String uri = request.getRequestURI();
+                if (uri.contains(StringEnum.ADMIN_INTERFACES.getValue())) {
+                    checkIdentity(Long.parseLong(userId));
+                }
                 request.setAttribute("userId", userId);
                 request.setAttribute("token", token);
                 return true;
             }
         }
         throw new AppException("请先登录");
+    }
+
+    private void checkIdentity(Long userId) {
+        UserVO userVO = userService.queryUserById(userId);
+        if (!userVO.getIdentity().equals(IdentityEnum.ADMIN.getIdentity())) {
+            throw new AppException("权限不足，你没有该权限");
+        }
+
+
     }
 }

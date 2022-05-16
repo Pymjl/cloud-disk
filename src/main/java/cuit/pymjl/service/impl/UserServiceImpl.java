@@ -7,6 +7,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.mail.MailUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.conditions.update.LambdaUpdateChainWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cuit.pymjl.constant.IdentityEnum;
 import cuit.pymjl.constant.IntegerEnum;
 import cuit.pymjl.constant.StringEnum;
@@ -129,7 +130,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         //用户校验通过
         log.info("校验通过，开始发放token......");
-        String token = JwtUtils.generateToken(user.getId(), user.getNickName());
+        String token = JwtUtils.generateToken(user.getId(), user.getNickname());
         //token放入redis,过期时间为token过期时间
         redisUtil.set(token, user.getId().toString(), JwtUtils.getTokenExpiredTime());
         return token;
@@ -151,7 +152,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         User user = User.builder()
                 .username(userInfoDTO.getUsername())
-                .nickName(userInfoDTO.getNickname())
+                .nickname(userInfoDTO.getNickname())
                 .password(PasswordUtils.encrypt(userInfoDTO.getPassword()))
                 .avatar(userInfoDTO.getAvatar())
                 .identity(IdentityEnum.USER.getIdentity())
@@ -201,7 +202,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public void updateNickname(Long id, String nickname) {
         new LambdaUpdateChainWrapper<>(baseMapper)
                 .eq(User::getId, id)
-                .set(User::getNickName, nickname)
+                .set(User::getNickname, nickname)
                 .set(User::getUpdateTime, new Date())
                 .update();
     }
@@ -247,6 +248,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .set(User::getPassword, PasswordUtils.encrypt(password))
                 .set(User::getUpdateTime, new Date())
                 .update();
+    }
+
+    @Override
+    public Page<UserVO> listUsers(Integer currentPage, Integer pageSize) {
+        Page<User> page = new Page<>(currentPage, pageSize);
+        LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+        Page<User> userPage = baseMapper.selectPage(page, wrapper);
+        List<UserVO> userVOS = BeanUtil.copyToList(userPage.getRecords(), UserVO.class);
+        for (UserVO userVO : userVOS) {
+            userVO.setAvatar(AliyunUtils.findFileInfo(userVO.getAvatar()).getLink());
+        }
+        Page<UserVO> res = new Page<>();
+        BeanUtil.copyProperties(userPage, res);
+        res.setRecords(userVOS);
+        return res;
     }
 
     /**

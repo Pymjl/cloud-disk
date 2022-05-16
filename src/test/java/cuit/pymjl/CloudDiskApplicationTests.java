@@ -83,5 +83,10 @@ class CloudDiskApplicationTests {
         System.out.println(userService.queryUserById(1L));
     }
 
+    @Test
+    void testListUsers() {
+        System.out.println(userService.listUsers(1, 3).getTotal());
+    }
+
 
 }

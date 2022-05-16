@@ -15,6 +15,8 @@ public enum StringEnum {
      */
     USER_AVATAR_PREFIX("user/avatar/"),
 
+    ADMIN_INTERFACES("admin"),
+
     /**
      * 主题：重置密码，用于重置密码时的邮件主题
      */

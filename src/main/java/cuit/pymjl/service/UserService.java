@@ -1,12 +1,15 @@
 package cuit.pymjl.service;
 
 import cn.hutool.captcha.CircleCaptcha;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cuit.pymjl.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
 import cuit.pymjl.entity.dto.UserDTO;
 import cuit.pymjl.entity.dto.UserInfoDTO;
 import cuit.pymjl.entity.vo.UserVO;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * <p>
@@ -103,6 +106,15 @@ public interface UserService extends IService<User> {
      * @param userId   用户id
      */
     void updatePassword(String password, Long userId);
+
+    /**
+     * 用户列表
+     *
+     * @param currentPage 当前页面
+     * @param pageSize    页面大小
+     * @return {@code List<UserVO>}
+     */
+    Page<UserVO> listUsers(Integer currentPage, Integer pageSize);
 
 
 }
