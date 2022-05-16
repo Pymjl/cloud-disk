@@ -42,7 +42,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     RedisUtil redisUtil;
 
     /**
-     * 过期时间,单位秒
+     * 验证码过期时间,单位秒
      */
     private static final long EXPIRATION = 300;
 
@@ -76,7 +76,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //获取图片验证码的文本串
         String code = captcha.getCode();
         //将文本串放入redis,uid作为Key,code作为value
-        redisUtil.set(uid, code);
+        redisUtil.set(uid, code, EXPIRATION);
         log.info("验证码生成成功");
         return captcha;
     }

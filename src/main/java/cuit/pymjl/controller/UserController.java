@@ -41,7 +41,6 @@ public class UserController {
     public void getImageCode(@NotBlank(message = "key不能为空")
                              @PathVariable("key") String uid, HttpServletResponse response)
             throws IOException {
-        System.out.println(uid);
         //得到图片验证码
         CircleCaptcha circleCaptcha = userService.getImageVerificationCode(uid);
         //写回客户端
