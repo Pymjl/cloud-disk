@@ -23,6 +23,7 @@ import cuit.pymjl.util.JwtUtils;
 import cuit.pymjl.util.PasswordUtils;
 import cuit.pymjl.util.RedisUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -157,7 +158,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .maxSpace(Integer.toUnsignedLong(IntegerEnum.MAX_SPACE_SIZE.getValue()))
                 .usedSpace(Integer.toUnsignedLong(IntegerEnum.INITIAL_SPACE_SIZE.getValue()))
                 .build();
-        return baseMapper.insert(user) == 1;
+        int result = 0;
+        try {
+            result = baseMapper.insert(user);
+        } catch (DuplicateKeyException e) {
+            throw new AppException("重复的用户名，请重新输入");
+        }
+        return result == 1;
     }
 
     @Override
