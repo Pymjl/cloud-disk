@@ -13,7 +13,11 @@ public enum IntegerEnum {
     /**
      * 用户的最大空间大小
      */
-    MAX_SPACE_SIZE(2048);
+    MAX_SPACE_SIZE(2048),
+    /**
+     * 重置密码长度
+     */
+    RESET_PASSWORD_LENGTH(10);
     private Integer value;
 
     public Integer getValue() {

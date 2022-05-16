@@ -78,7 +78,7 @@ public class UserController {
     @GetMapping("/user/info")
     public Result<UserVO> getMyUserInfo(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
-        checkUserId(userId);
+        check(userId);
         UserVO userVO = userService.queryUserById(Long.parseLong(userId));
         return ResultUtil.success(userVO);
     }
@@ -87,14 +87,49 @@ public class UserController {
     public Result<String> updateAvatar(HttpServletRequest request,
                                        @RequestParam("file") MultipartFile file) {
         String userId = (String) request.getAttribute("userId");
-        checkUserId(userId);
+        check(userId);
         String avatar = userService.updateAvatar(Long.parseLong(userId), file);
         return ResultUtil.success(avatar);
     }
 
-    private void checkUserId(String userId) {
-        if (StrUtil.isBlank(userId)) {
-            throw new AppException("发生未知错误，用户ID为空");
+    @PatchMapping("/user/nickname/{name}")
+    public Result<String> updateNickname(HttpServletRequest request,
+                                         @PathVariable("name") String name) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        userService.updateNickname(Long.parseLong(userId), name);
+        return ResultUtil.success();
+    }
+
+    @PostMapping("/logout")
+    public Result<String> logout(HttpServletRequest request) {
+        String token = (String) request.getAttribute("token");
+        check(token);
+        userService.logout(token);
+        return ResultUtil.success();
+    }
+
+    @PatchMapping("/user/password/{verifyKey}/{verifyCode}")
+    public Result<String> resetPassword(HttpServletRequest request,
+                                        @PathVariable("verifyKey") String verifyKey,
+                                        @PathVariable("verifyCode") String verifyCode) {
+        String userId = (String) request.getAttribute("userId");
+        String token = (String) request.getAttribute("token");
+        check(userId, token);
+        userService.resetPassword(verifyKey, verifyCode, token, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+    /**
+     * 检查
+     *
+     * @param data 数据
+     */
+    private void check(String... data) {
+        for (String datum : data) {
+            if (StrUtil.isBlank(datum)) {
+                throw new AppException("发生了未知错误，参数异常，请联系管理员或稍后重试");
+            }
         }
     }
 

@@ -46,6 +46,13 @@ public interface UserService extends IService<User> {
     String login(UserDTO userDTO);
 
     /**
+     * 注销
+     *
+     * @param token 令牌
+     */
+    void logout(String token);
+
+    /**
      * 注册
      *
      * @param userInfoDTO 用户信息dto
@@ -63,7 +70,6 @@ public interface UserService extends IService<User> {
     UserVO queryUserById(Long id);
 
     /**
-     * 更新《阿凡达》
      * 更新头像
      *
      * @param id   id
@@ -71,6 +77,24 @@ public interface UserService extends IService<User> {
      * @return {@code String}
      */
     String updateAvatar(Long id, MultipartFile file);
+
+    /**
+     * 更新昵称
+     *
+     * @param id       id
+     * @param nickname 昵称
+     */
+    void updateNickname(Long id, String nickname);
+
+    /**
+     * 重置密码
+     *
+     * @param verifyKey  验证关键
+     * @param verifyCode 验证代码
+     * @param token      令牌
+     * @param userId     用户id
+     */
+    void resetPassword(String verifyKey, String verifyCode, String token, Long userId);
 
 
 }

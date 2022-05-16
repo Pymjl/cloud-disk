@@ -41,6 +41,7 @@ public class TokenInterceptor implements HandlerInterceptor {
                 }
                 log.info("获取到的用户ID==>[{}]", userId);
                 request.setAttribute("userId", userId);
+                request.setAttribute("token", token);
                 return true;
             }
         }

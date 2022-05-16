@@ -63,4 +63,11 @@ public class GlobalExceptionHandler {
         log.error(msg);
         return ResultUtil.fail(msg.toString().trim());
     }
+
+    @ExceptionHandler(NullPointerException.class)
+    public Result<String> error(NullPointerException e) {
+        e.printStackTrace();
+        log.error(e.getMessage());
+        return ResultUtil.fail("发生了空指针异常,请联系管理员解决");
+    }
 }

@@ -94,13 +94,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!imageCode.equals(code)) {
             throw new AppException("图片验证码不匹配，请刷新验证码后重试");
         }
-        log.info("图片验证码验证成功,开始生成邮箱验证码......");
+
         //开始生成邮箱验证码
+        log.info("图片验证码验证成功,开始生成邮箱验证码......");
         String verifyCode = getRandomString(VERIFY_CODE_LENGTH);
         String key = UUID.randomUUID().toString().replaceAll("-", "");
         log.info("邮箱验证码为==>{},开始发送邮件......", verifyCode);
-        MailUtil.send(email, "邮箱验证码",
-                "亲爱的用户您好，您的邮箱验码是" + verifyCode + ",有效期为5分钟", false);
+        MailUtil.send(email, StringEnum.MAIL_SUBJECT_VERIFY_CODE.getValue(),
+                StringEnum.getVerifyMailMessage(code), false);
         redisUtil.set(key, verifyCode, EXPIRATION);
         return key;
     }
@@ -114,8 +115,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (StrUtil.isBlank(code) || !code.equals(userDTO.getVerifyCode())) {
             throw new AppException("邮箱验证码错误");
         }
-        log.info("邮箱验证码验证成功，开始校验用户账号......");
+
         //校验账号
+        log.info("邮箱验证码验证成功，开始校验用户账号......");
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<User>()
                 .eq(User::getUsername, userDTO.getUsername())
                 .eq(User::getPassword, PasswordUtils.encrypt(userDTO.getPassword()));
@@ -123,6 +125,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (BeanUtil.isEmpty(user)) {
             throw new AppException("用户名或密码错误，请重新输入");
         }
+
         //用户校验通过
         log.info("校验通过，开始发放token......");
         String token = JwtUtils.generateToken(user.getId(), user.getNickName());
@@ -177,6 +180,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         log.info("文件对象名为==>[{}],开始上传到阿里云OSS服务.......", fileName);
         AliyunUtils.upload(fileName, file);
         log.info("上传成功");
+
         //写入数据库
         new LambdaUpdateChainWrapper<>(baseMapper)
                 .eq(User::getId, id)
@@ -184,6 +188,49 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .set(User::getUpdateTime, new Date())
                 .update();
         return AliyunUtils.findFileInfo(fileName).getLink();
+    }
+
+    @Override
+    public void updateNickname(Long id, String nickname) {
+        new LambdaUpdateChainWrapper<>(baseMapper)
+                .eq(User::getId, id)
+                .set(User::getNickName, nickname)
+                .set(User::getUpdateTime, new Date())
+                .update();
+    }
+
+    @Override
+    public void resetPassword(String verifyKey, String verifyCode, String token, Long userId) {
+        //先验证邮箱密码
+        log.info("开始校验邮箱验证码.......");
+        String code = (String) redisUtil.get(verifyKey);
+        redisUtil.del(verifyKey);
+        if (null == code || !code.equals(verifyCode)) {
+            throw new AppException("邮箱验证码错误，请重试");
+        }
+
+        //开始生成新的随机密码，通过邮箱发送
+        log.info("邮箱验证码校验成功");
+        String newPassword = getRandomString(IntegerEnum.RESET_PASSWORD_LENGTH.getValue());
+        User user = baseMapper.selectById(userId);
+        MailUtil.send(user.getUsername(), StringEnum.MAIL_SUBJECT_RESET_PASSWORD.getValue(),
+                StringEnum.getRestPasswordMessage(newPassword), false);
+        //更新数据库
+        new LambdaUpdateChainWrapper<>(baseMapper)
+                .eq(User::getId, userId)
+                .set(User::getPassword, PasswordUtils.encrypt(newPassword))
+                .set(User::getUpdateTime, new Date())
+                .update();
+        log.info("重置密码成功");
+        //强制登出
+        this.logout(token);
+    }
+
+    @Override
+    public void logout(String token) {
+        if (!redisUtil.del(token)) {
+            throw new AppException("发生未知错误，登出失败");
+        }
     }
 
     /**
