@@ -74,7 +74,7 @@ export const cleanReq = () => {
 
 /**
  * 请求构造工厂
- * @param config 请求配置参数
+ * @param config 请求配置参数，由于设计缺陷，传入的 headers 参数将被忽略
  */
 export const ARFactory = async (
   config: import('axios').AxiosRequestConfig
