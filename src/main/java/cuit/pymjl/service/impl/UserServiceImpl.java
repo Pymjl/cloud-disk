@@ -101,7 +101,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String key = UUID.randomUUID().toString().replaceAll("-", "");
         log.info("邮箱验证码为==>{},开始发送邮件......", verifyCode);
         MailUtil.send(email, StringEnum.MAIL_SUBJECT_VERIFY_CODE.getValue(),
-                StringEnum.getVerifyMailMessage(code), false);
+                StringEnum.getVerifyMailMessage(verifyCode), false);
         redisUtil.set(key, verifyCode, EXPIRATION);
         return key;
     }

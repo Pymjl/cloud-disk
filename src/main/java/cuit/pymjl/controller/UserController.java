@@ -117,7 +117,7 @@ public class UserController {
         String token = (String) request.getAttribute("token");
         check(userId, token);
         userService.resetPassword(verifyKey, verifyCode, token, Long.parseLong(userId));
-        return ResultUtil.success();
+        return ResultUtil.success("重置密码成功，请重新登录");
     }
 
     /**
