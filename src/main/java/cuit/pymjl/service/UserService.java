@@ -116,5 +116,11 @@ public interface UserService extends IService<User> {
      */
     Page<UserVO> listUsers(Integer currentPage, Integer pageSize);
 
+    /**
+     * 删除用户
+     *
+     * @param id id
+     */
+    void deleteUserById(Long id);
 
 }

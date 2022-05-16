@@ -255,14 +255,30 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Page<User> page = new Page<>(currentPage, pageSize);
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         Page<User> userPage = baseMapper.selectPage(page, wrapper);
-        List<UserVO> userVOS = BeanUtil.copyToList(userPage.getRecords(), UserVO.class);
-        for (UserVO userVO : userVOS) {
+        List<UserVO> result = BeanUtil.copyToList(userPage.getRecords(), UserVO.class);
+        for (UserVO userVO : result) {
             userVO.setAvatar(AliyunUtils.findFileInfo(userVO.getAvatar()).getLink());
         }
         Page<UserVO> res = new Page<>();
         BeanUtil.copyProperties(userPage, res);
-        res.setRecords(userVOS);
+        res.setRecords(result);
         return res;
+    }
+
+    @Override
+    public void deleteUserById(Long id) {
+        User user = baseMapper.selectById(id);
+        try {
+            if (user.getIdentity().equals(IdentityEnum.ADMIN.getIdentity())) {
+                throw new AppException("删除的目标用户为管理员，你没有权限删除");
+            }
+            if (baseMapper.deleteById(id) != IntegerEnum.SUCCESS.getValue()) {
+                throw new AppException("发生未知错误，删除失败");
+            }
+        } catch (NullPointerException e) {
+            e.printStackTrace();
+            throw new AppException("不存在该用户");
+        }
     }
 
     /**

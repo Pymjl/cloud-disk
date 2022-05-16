@@ -10,6 +10,7 @@ public enum IntegerEnum {
      * 初始的空间大小，默认0 MB
      */
     INITIAL_SPACE_SIZE(0),
+    SUCCESS(1),
     /**
      * 用户的最大空间大小
      */

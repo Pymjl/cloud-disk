@@ -3,12 +3,11 @@ package cuit.pymjl.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import cuit.pymjl.entity.vo.UserVO;
 import cuit.pymjl.result.PageResult;
+import cuit.pymjl.result.Result;
+import cuit.pymjl.result.ResultUtil;
 import cuit.pymjl.service.UserService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.validation.constraints.NotNull;
@@ -31,5 +30,11 @@ public class AdminController {
                                         @NotNull(message = "参数每页的宽度不能为null") @PathVariable("pageSize") Integer pageSize) {
         Page<UserVO> page = userService.listUsers(currentPage, pageSize);
         return new PageResult<>(page);
+    }
+
+    @DeleteMapping("/user/{id}")
+    public Result<String> deleteUserById(@PathVariable("id") Long id) {
+        userService.deleteUserById(id);
+        return ResultUtil.success();
     }
 }
