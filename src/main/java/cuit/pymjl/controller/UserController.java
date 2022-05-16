@@ -37,10 +37,11 @@ public class UserController {
     @Resource
     UserService userService;
 
-    @GetMapping("/get/image/{key}")
+    @GetMapping("/codes/image/{key}")
     public void getImageCode(@NotBlank(message = "key不能为空")
                              @PathVariable("key") String uid, HttpServletResponse response)
             throws IOException {
+        System.out.println(uid);
         //得到图片验证码
         CircleCaptcha circleCaptcha = userService.getImageVerificationCode(uid);
         //写回客户端
@@ -52,7 +53,7 @@ public class UserController {
         }
     }
 
-    @GetMapping("/send/email")
+    @GetMapping("/codes/email")
     public Result<String> sendEmailCode(@NotBlank(message = "key不能为空") @RequestParam("key") String uid,
                                         @NotBlank(message = "图片验证码不能为空") @RequestParam("code") String code,
                                         @Email(message = "用户名格式异常,用户名必须为邮箱") @RequestParam("username") String email) {
@@ -74,7 +75,7 @@ public class UserController {
         return ResultUtil.success(ResultEnum.REGISTER_SUCCESS);
     }
 
-    @GetMapping("/user/get")
+    @GetMapping("/user/info")
     public Result<UserVO> getMyUserInfo(HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
         if (StrUtil.isBlank(userId)) {
