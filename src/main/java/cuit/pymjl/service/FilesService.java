@@ -44,4 +44,22 @@ public interface FilesService extends IService<File> {
      */
     List<FileVO> queryFiles(String path, Long userId);
 
+    /**
+     * 更新文件名字
+     *
+     * @param fileName 文件名称
+     * @param userId   用户id
+     * @param fileId   文件标识
+     */
+    void updateFileName(String fileName, Long userId, Long fileId);
+
+    /**
+     * 删除文件,这是逻辑删除，并不会删除存在于阿里云OSS上的源文件
+     *
+     * @param userId 用户id
+     * @param fileId 文件标识
+     * @param path   路径
+     */
+    void deleteFile(Long userId, Long fileId, String path);
+
 }

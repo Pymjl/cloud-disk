@@ -50,7 +50,7 @@ mybatis-plus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   mapper-locations: classpath:cuit/pymjl/mapper/*/xml/*.xml
-  type-aliases-package: cuit.epoch.pymjl.entity
+  type-aliases-package: cuit.pymjl.entity
 logging:
   level:
     root: WARN

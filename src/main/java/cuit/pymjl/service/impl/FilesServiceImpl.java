@@ -52,7 +52,6 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
         File sourceFile = File.builder().fileName(name)
                 .filePath(objectName)
                 .size(size)
-                .isDeleted(0)
                 .type(StringEnum.FILE_TYPE_DOC.getValue())
                 .ownerId(userId)
                 .build();
@@ -101,6 +100,19 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
             }
         }
         return files;
+    }
+
+    @Override
+    public void updateFileName(String fileName, Long userId, Long fileId) {
+        //因为阿里云OSS不支持更新文件名称，只能重新上传，所以我们需要对文件进行拷贝再删除
+        //TODO
+    }
+
+    @Override
+    public void deleteFile(Long userId, Long fileId, String path) {
+        //TODO
+
+
     }
 
     /**

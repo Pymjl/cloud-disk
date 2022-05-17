@@ -1,33 +1,23 @@
 package cuit.pymjl.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.io.Serializable;
 import java.util.Date;
 
-import lombok.*;
-
 /**
- * <p>
- *
- * </p>
- *
- * @author pymjl
- * @since 2022-05-14
- */
-@Getter
-@Setter
-@Builder
-@ToString
+ * @author Pymjl
+ * @version 1.0
+ * @date 2022/5/17 15:39
+ **/
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("t_files")
-public class File implements Serializable {
-
+@TableName("t_garbage")
+public class Garbage implements Serializable {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -72,6 +62,4 @@ public class File implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
-
-
 }
