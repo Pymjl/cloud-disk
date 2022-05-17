@@ -4,6 +4,7 @@ import cuit.pymjl.exception.AppException;
 import cuit.pymjl.result.Result;
 import cuit.pymjl.result.ResultUtil;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.validation.BindException;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -69,5 +70,13 @@ public class GlobalExceptionHandler {
         e.printStackTrace();
         log.error(e.getMessage());
         return ResultUtil.fail("发生了空指针异常,请联系管理员解决");
+    }
+
+    @ExceptionHandler(DuplicateKeyException.class)
+    public Result<String> error(DuplicateKeyException e) {
+        e.printStackTrace();
+        log.error(e.getMessage());
+        return ResultUtil.fail("重复的参数名，请改名后重新提交");
+
     }
 }

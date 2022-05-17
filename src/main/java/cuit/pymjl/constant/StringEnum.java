@@ -25,7 +25,14 @@ public enum StringEnum {
     MAIL_MESSAGE_VERIFY_CODE_PREFIX("亲爱的用户您好:\n\t您的邮箱验证码是："),
     MAIL_MESSAGE_VERIFY_CODE_SUFFIX("有效期为五分钟,请及时使用!"),
     MAIL_MESSAGE_RESET_PASSWORD_PREFIX("亲爱的用户您好:\n\t您的新密码是："),
-    MAIL_MESSAGE_RESET_PASSWORD_SUFFIX("请牢记您的密码，稍后您可以在用户界面更改您的密码。");
+    MAIL_MESSAGE_RESET_PASSWORD_SUFFIX("请牢记您的密码，稍后您可以在用户界面更改您的密码。"),
+
+    /**
+     * 文件默认前缀
+     */
+    FILE_DEFAULT_PREFIX("cloud-disk/files/"),
+    FILE_TYPE_DIR("dir"),
+    FILE_TYPE_DOC("file");
 
     private String value;
 

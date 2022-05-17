@@ -7,6 +7,7 @@ import cn.hutool.crypto.digest.SM3;
 import cn.hutool.extra.mail.MailAccount;
 import cn.hutool.extra.mail.MailUtil;
 import cuit.pymjl.constant.StringEnum;
+import cuit.pymjl.service.FilesService;
 import cuit.pymjl.service.UserService;
 import cuit.pymjl.util.AliyunUtils;
 import cuit.pymjl.util.JwtUtils;
@@ -31,6 +32,9 @@ class CloudDiskApplicationTests {
 
     @Resource
     UserService userService;
+
+    @Resource
+    FilesService filesService;
 
     @Test
     void contextLoads() throws SQLException {
@@ -86,6 +90,11 @@ class CloudDiskApplicationTests {
     @Test
     void testListUsers() {
         System.out.println(userService.listUsers(1, 3).getTotal());
+    }
+
+    @Test
+    void testFiles() {
+        filesService.queryFiles("foo/bar/", 1L).forEach(System.out::println);
     }
 
 

@@ -1,6 +1,6 @@
 package cuit.pymjl.mapper;
 
-import cuit.pymjl.entity.Files;
+import cuit.pymjl.entity.File;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
@@ -13,6 +13,6 @@ import org.apache.ibatis.annotations.Mapper;
  * @since 2022-05-14
  */
 @Mapper
-public interface FilesMapper extends BaseMapper<Files> {
+public interface FilesMapper extends BaseMapper<File> {
 
 }

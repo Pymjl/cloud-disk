@@ -26,7 +26,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @TableName("t_files")
-public class Files implements Serializable {
+public class File implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -57,6 +57,16 @@ public class Files implements Serializable {
     private Integer isDeleted;
 
     /**
+     * 类型
+     */
+    private String type;
+
+    /**
+     * 文件大小，默认0，单位byte
+     */
+    private Long size;
+
+    /**
      * 创建时间
      */
     @TableField(fill = FieldFill.INSERT)
@@ -65,6 +75,7 @@ public class Files implements Serializable {
     /**
      * 删除时间
      */
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date updateTime;
 
 

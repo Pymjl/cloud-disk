@@ -1,6 +1,9 @@
 package cuit.pymjl.entity.vo;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
+
+import java.util.Date;
 
 /**
  * @author Pymjl
@@ -8,7 +11,12 @@ import lombok.Data;
  */
 @Data
 public class FileVO {
-    private String name;
+    private Long id;
     private String type;
+    @JsonProperty("name")
+    private String fileName;
     private String link;
+    private Date createTime;
+    private Date updateTime;
+    private Long size;
 }

@@ -216,14 +216,14 @@ public class AliyunUtils {
             FileVO fileVO = new FileVO();
             fileVO.setType("file");
             fileVO.setLink(getFileUrl(objectSummary.getKey(), stsMessage));
-            fileVO.setName(subFileName(objectSummary.getKey(), keyPrefix));
+            fileVO.setFileName(subFileName(objectSummary.getKey(), keyPrefix));
             fileList.add(fileVO);
         }
         // commonPrefixs列表中显示的是fun目录下的所有子文件夹。由于fun/movie/001.avi和fun/movie/007.avi属于fun文件夹下的movie目录，因此这两个文件未在列表中。
         for (String commonPrefix : result.getCommonPrefixes()) {
             FileVO fileVO = new FileVO();
             fileVO.setType("dir");
-            fileVO.setName(subDirName(commonPrefix, keyPrefix));
+            fileVO.setFileName(subDirName(commonPrefix, keyPrefix));
             fileList.add(fileVO);
         }
         // 关闭OSSClient。
@@ -278,7 +278,7 @@ public class AliyunUtils {
         StsMessage stsMessage = getStsMessage();
         String fileUrl = getFileUrl(objectName, stsMessage);
         FileVO fileVO = new FileVO();
-        fileVO.setName(objectName);
+        fileVO.setFileName(objectName);
         fileVO.setLink(fileUrl);
         fileVO.setType("file");
         return fileVO;
