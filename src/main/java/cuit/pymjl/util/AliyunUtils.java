@@ -305,9 +305,9 @@ public class AliyunUtils {
             log.info("该文件夹下的路径为：");
             for (OSSObjectSummary s : ossObjectSummaries) {
                 String fileName = s.getKey();
-                if (fileName.contains(StringEnum.FILE_IGNORE_NAME.getValue())) {
-                    continue;
-                }
+//                if (fileName.contains(StringEnum.FILE_IGNORE_NAME.getValue())) {
+//                    continue;
+//                }
                 res.add(fileName);
             }
             return res;
@@ -559,7 +559,9 @@ public class AliyunUtils {
         } else {
             //复制文件夹下的所有文件
             for (String path : list) {
-                String dest = targetPath + path.replaceAll(sourcePath, "");
+                String orginalFileName = path.substring(path.lastIndexOf("/", path.lastIndexOf("/") - 1) + 1);
+                String dest = targetPath + orginalFileName;
+                log.info("dest==>" + dest);
                 copyFile(path, dest);
             }
         }

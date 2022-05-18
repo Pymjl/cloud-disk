@@ -68,6 +68,15 @@ public interface FilesService extends IService<File> {
      * @param targetPath   目标路径
      * @param userId       用户id
      */
+    void moveFolder(String originalPath, String targetPath, Long userId);
+
+    /**
+     * 移动文件
+     *
+     * @param originalPath 原始路径
+     * @param targetPath   目标路径
+     * @param userId       用户id
+     */
     void moveFile(String originalPath, String targetPath, Long userId);
 
     /**

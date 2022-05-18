@@ -87,12 +87,16 @@ public class AliyunUtilsTest {
 
     @Test
     void testCopyFile() {
-        AliyunUtils.copyFile("foo/bar/regedit.exe", "foo/bar/pymjl/regedit.exe");
+        AliyunUtils.copyFile("cloud-disk/files/1/foo/bar/regedit.exe",
+                "cloud-disk/files/1/foo/bar/pymjl/regedit.exe");
     }
 
     @Test
     void testCopyFolder() {
-        AliyunUtils.copyFolder("test/", "dest/");
+//        AliyunUtils.copyFolder("cloud-disk/files/1/foo/bar/regedit.exe", "dest/");
+        String path = "cloud-disk/files/1/foo/bar/pymjl/";
+        String oo=path.substring(0,path.lastIndexOf("/",path.lastIndexOf("/")-1));
+        System.out.println(oo);
     }
 
     @Test

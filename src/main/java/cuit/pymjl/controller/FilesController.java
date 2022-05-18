@@ -59,10 +59,20 @@ public class FilesController {
         return ResultUtil.success(vos);
     }
 
-    @PostMapping("/move")
-    public Result<String> copy(@NotNull(message = "文件名不能为空") @RequestParam("originPath") String originPath,
-                               @NotNull(message = "文件名不能为空") @RequestParam("targetPath") String targetPath,
-                               HttpServletRequest request) {
+    @PostMapping("/move/folder")
+    public Result<String> copyFolder(@NotNull(message = "文件夹的名称不能为空") @RequestParam("originPath") String originPath,
+                                     @NotNull(message = "文件夹的名称不能为空") @RequestParam("targetPath") String targetPath,
+                                     HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.moveFolder(originPath, targetPath, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+    @PostMapping("/move/file")
+    public Result<String> copyFile(@NotNull(message = "文件名不能为空") @RequestParam("originPath") String originPath,
+                                   @NotNull(message = "文件名不能为空") @RequestParam("targetPath") String targetPath,
+                                   HttpServletRequest request) {
         String userId = (String) request.getAttribute("userId");
         check(userId);
         filesService.moveFile(originPath, targetPath, Long.parseLong(userId));

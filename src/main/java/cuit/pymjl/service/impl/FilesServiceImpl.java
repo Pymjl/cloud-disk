@@ -10,10 +10,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cuit.pymjl.util.AliyunUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 
@@ -80,7 +78,7 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
     @Override
     public void updateFileName(String newFileName, String originalName, Long userId) {
         //因为阿里云OSS不支持更新文件名称，只能重新上传，所以我们需要对文件进行拷贝再删除
-        moveFile(originalName, newFileName, userId);
+        moveFolder(originalName, newFileName, userId);
     }
 
     @Override
@@ -103,6 +101,29 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
 
 
     @Override
+    public void moveFolder(String originalPath, String targetPath, Long userId) {
+        while (originalPath.startsWith(SEPARATOR)) {
+            originalPath = originalPath.substring(1, originalPath.length());
+        }
+        while (targetPath.startsWith(SEPARATOR)) {
+            targetPath = targetPath.substring(1, targetPath.length());
+        }
+        if (!originalPath.endsWith(SEPARATOR) || !targetPath.endsWith(SEPARATOR)) {
+            throw new AppException("文件夹不符合规范");
+        }
+        String sourcePath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + originalPath;
+        log.info("源文件的完整路径名为==>[{}]", sourcePath);
+        String destPath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + targetPath;
+        log.info("目标文件的完整路径名为==>[{}]", destPath);
+        AliyunUtils.copyFolder(sourcePath, destPath);
+        AliyunUtils.deleteDirAndFiles(sourcePath);
+        //因为阿里云OSS不支持文件夹的概念，一旦删除，不会保留空文件夹，所以需要创建一个空的文件夹占位
+        sourcePath = sourcePath.substring(0, sourcePath.lastIndexOf(SEPARATOR, sourcePath.lastIndexOf(SEPARATOR) - 1) + 1);
+        makeIgnoreFile(sourcePath);
+    }
+
+    @Override
+    @SuppressWarnings("all")
     public void moveFile(String originalPath, String targetPath, Long userId) {
         while (originalPath.startsWith(SEPARATOR)) {
             originalPath = originalPath.substring(1, originalPath.length());
@@ -110,11 +131,14 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
         while (targetPath.startsWith(SEPARATOR)) {
             targetPath = targetPath.substring(1, targetPath.length());
         }
+        if (!originalPath.contains(".") || !targetPath.contains(".")) {
+            throw new AppException("文件名不符合规范");
+        }
         String sourcePath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + originalPath;
         log.info("源文件的完整路径名为==>[{}]", sourcePath);
         String destPath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + targetPath;
         log.info("目标文件的完整路径名为==>[{}]", destPath);
-        AliyunUtils.copyFolder(sourcePath, destPath);
+        AliyunUtils.copyFile(sourcePath, destPath);
         AliyunUtils.deleteDirAndFiles(sourcePath);
         //因为阿里云OSS不支持文件夹的概念，一旦删除，不会保留空文件夹，所以需要创建一个空的文件夹占位
         makeIgnoreFile(sourcePath);

@@ -1,13 +1,10 @@
 package cuit.pymjl;
 
 import cuit.pymjl.service.FilesService;
-import cuit.pymjl.util.AliyunUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import javax.annotation.Resource;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 /**
  * @author Pymjl
@@ -42,7 +39,7 @@ class FilesServiceTest {
 
     @Test
     void moveFile() {
-        filesService.moveFile("foo/bar/pymjl/", "foo/bar/", 1L);
+        filesService.moveFile("foo/bar/pymjl/regedit.exe", "foo/bar/regedit.exe", 1L);
     }
 
     @Test
