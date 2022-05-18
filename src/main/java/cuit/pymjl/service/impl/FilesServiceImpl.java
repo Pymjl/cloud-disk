@@ -1,8 +1,5 @@
 package cuit.pymjl.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import cuit.pymjl.constant.StringEnum;
 import cuit.pymjl.entity.File;
 import cuit.pymjl.entity.vo.FileVO;
@@ -12,11 +9,11 @@ import cuit.pymjl.service.FilesService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import cuit.pymjl.util.AliyunUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 
@@ -35,84 +32,120 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
     private final static String SEPARATOR = "/";
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Long upload(MultipartFile file, Long userId, String path) {
+    public void upload(MultipartFile file, Long userId, String path) {
         log.info("开始上传文件........");
         String name = file.getOriginalFilename();
-        long size = file.getSize();
-        //TODO 如果要扩展功能，这里需要先判断用户的剩余空间是否还足够
-        log.info("文件名为==>[{}],文件大小为==>[{}]", name, size);
-        if (path != null && path.startsWith(SEPARATOR)) {
+        log.info("文件名为==>[{}]", name);
+        while (path != null && path.startsWith(SEPARATOR)) {
             path = path.substring(1, path.length());
         }
         String objectName = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + path + name;
 
-        //将记录插入到数据库
-        log.info("开始插入记录....");
-        File sourceFile = File.builder().fileName(name)
-                .filePath(objectName)
-                .size(size)
-                .type(StringEnum.FILE_TYPE_DOC.getValue())
-                .ownerId(userId)
-                .build();
-        try {
-            baseMapper.insert(sourceFile);
-        } catch (DuplicateKeyException e) {
-            throw new AppException("重复的文件名，请更改你的文件名后再提交");
-        }
-
         //上传文件到阿里云OSS
-        log.info("文件的完整路径为==>[{}],开始上传文件到阿里云OSS", objectName);
+        log.info("文件的完整路径为==>[{}],开始上传文件到阿里云OSS...", objectName);
         AliyunUtils.upload(objectName, file);
         log.info("文件上传成功");
-        return sourceFile.getId();
     }
 
     @Override
-    public FileVO queryFileById(Long id) {
-        File file = baseMapper.selectById(id);
-        if (ObjectUtil.isEmpty(file)) {
-            throw new AppException("文件异常,不存在该文件");
+    public FileVO queryFile(String path, Long userId) {
+        while (path.startsWith(SEPARATOR)) {
+            path = path.substring(1);
         }
-        FileVO res = new FileVO();
-        BeanUtil.copyProperties(file, res);
-        res.setLink(getFileLink(file.getFilePath()));
-        return res;
+        //拼接完整的文件名
+        String objectName = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + path;
+        log.info("完整的路径名为==>[{}]", objectName);
+        FileVO fileInfo = AliyunUtils.findFileInfo(objectName);
+        fileInfo.setFileName(fileInfo.getFileName().substring(fileInfo.getFileName().lastIndexOf("/") + 1));
+        return fileInfo;
     }
 
     @Override
     public List<FileVO> queryFiles(String path, Long userId) {
         while (path.startsWith(SEPARATOR)) {
-            path = path.substring(1, path.length());
+            path = path.substring(1);
         }
         path = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + path;
-        List<FileVO> files = AliyunUtils.listFile(path);
-
-        LambdaQueryWrapper<File> wrapper = new LambdaQueryWrapper<File>()
-                .eq(File::getOwnerId, userId)
-                .likeRight(File::getFilePath, path);
-        List<File> fileList = baseMapper.selectList(wrapper);
-        for (FileVO file : files) {
-            for (File temp : fileList) {
-                if (file.getFileName().equals(temp.getFileName())) {
-                    BeanUtil.copyProperties(temp, file);
-                }
-            }
+        if (!path.endsWith(SEPARATOR)) {
+            path += SEPARATOR;
         }
-        return files;
+        log.info("完整的查找路径为==>{}", path);
+        List<FileVO> vos = AliyunUtils.listFile(path);
+        for (FileVO file : vos) {
+            file.setFileName(file.getFileName().replaceAll(path, ""));
+        }
+        return vos;
     }
 
     @Override
-    public void updateFileName(String fileName, Long userId, Long fileId) {
+    public void updateFileName(String newFileName, String originalName, Long userId) {
         //因为阿里云OSS不支持更新文件名称，只能重新上传，所以我们需要对文件进行拷贝再删除
-        //TODO
+        moveFile(originalName, newFileName, userId);
     }
 
     @Override
-    public void deleteFile(Long userId, Long fileId, String path) {
-        //TODO
+    public void deleteFileOrFolder(String originalFileName, Long userId) {
+        //校验文件名
+        while (originalFileName.startsWith("/")) {
+            originalFileName = originalFileName.substring(1);
+        }
+        //拼接文件名
+        String originalPath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + originalFileName;
+        log.info("源文件的完整路径名为==>[{}]", originalPath);
+        String targetPath = StringEnum.FILE_DEFAULT_GARBAGE_PREFIX.getValue() + userId + SEPARATOR + originalFileName;
+        log.info("目标文件的完整路径名为==>[{}]", targetPath);
+        AliyunUtils.copyFolder(originalPath, targetPath);
+
+        AliyunUtils.deleteDirAndFiles(originalPath);
+        //因为阿里云OSS不支持文件夹的概念，一旦删除，不会保留空文件夹，所以需要创建一个空的文件夹占位
+        makeIgnoreFile(originalPath);
+    }
 
 
+    @Override
+    public void moveFile(String originalPath, String targetPath, Long userId) {
+        while (originalPath.startsWith(SEPARATOR)) {
+            originalPath = originalPath.substring(1, originalPath.length());
+        }
+        while (targetPath.startsWith(SEPARATOR)) {
+            targetPath = targetPath.substring(1, targetPath.length());
+        }
+        String sourcePath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + originalPath;
+        log.info("源文件的完整路径名为==>[{}]", sourcePath);
+        String destPath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + targetPath;
+        log.info("目标文件的完整路径名为==>[{}]", destPath);
+        AliyunUtils.copyFolder(sourcePath, destPath);
+        AliyunUtils.deleteDirAndFiles(sourcePath);
+        //因为阿里云OSS不支持文件夹的概念，一旦删除，不会保留空文件夹，所以需要创建一个空的文件夹占位
+        makeIgnoreFile(sourcePath);
+    }
+
+    @Override
+    public void deleteFileForever(String targetFileName, Long userId) {
+        while (targetFileName.startsWith("/")) {
+            targetFileName = targetFileName.substring(1);
+        }
+        //拼接文件名
+        String targetPath = StringEnum.FILE_DEFAULT_GARBAGE_PREFIX.getValue() + userId + SEPARATOR + targetFileName;
+        log.info("目标文件的完整路径名为==>[{}]", targetPath);
+        //开始删除
+        AliyunUtils.deleteDirAndFiles(targetPath);
+        //因为阿里云OSS不支持文件夹的概念，一旦删除，不会保留空文件夹，所以需要创建一个空的文件夹占位
+        makeIgnoreFile(targetPath);
+    }
+
+    /**
+     * 创建忽略文件
+     *
+     * @param originalPath 原始路径
+     */
+    private void makeIgnoreFile(String originalPath) {
+        if (originalPath.contains(".")) {
+            String fileName = originalPath.substring(0, originalPath.lastIndexOf(SEPARATOR) + 1);
+            AliyunUtils.makeFile(fileName);
+        } else {
+            AliyunUtils.makeFile(originalPath);
+        }
     }
 
     /**

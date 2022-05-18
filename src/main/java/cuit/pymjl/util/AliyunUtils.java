@@ -1,8 +1,10 @@
 package cuit.pymjl.util;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.OSSClientBuilder;
+import com.aliyun.oss.OSSException;
 import com.aliyun.oss.common.utils.BinaryUtil;
 import com.aliyun.oss.model.*;
 import com.aliyuncs.DefaultAcsClient;
@@ -12,6 +14,7 @@ import com.aliyuncs.profile.DefaultProfile;
 import com.aliyuncs.profile.IClientProfile;
 import com.aliyuncs.sts.model.v20150401.AssumeRoleRequest;
 import com.aliyuncs.sts.model.v20150401.AssumeRoleResponse;
+import cuit.pymjl.constant.StringEnum;
 import cuit.pymjl.entity.pojo.OssCallbackParam;
 import cuit.pymjl.entity.pojo.OssCallbackResult;
 import cuit.pymjl.entity.pojo.OssPolicyResult;
@@ -37,7 +40,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * //TODO 将本类中的常量写入yml中，以注入的方式获取
+ * //TODO 将OSSClient写成连接池或者线程安全的方式，每个方法都对Client的创建销毁很浪费资源
  *
  * @author Pymjl
  * @date 2022/2/23 16:10
@@ -45,6 +48,7 @@ import java.util.List;
 @Data
 @Component
 @Log4j2
+@SuppressWarnings("all")
 public class AliyunUtils {
 
     /**
@@ -64,14 +68,17 @@ public class AliyunUtils {
      * regionId表示RAM的地域ID。以华东1（杭州）地域为例，regionID填写为cn-hangzhou。也可以保留默认值，默认值为空字符串（""）。
      */
     private static final String REGION_ID = "cn-shanghai";
+
     /**
      * 签名直传时设置最大文件大小，单位MB
      */
     private static final long ALIYUN_OSS_MAX_SIZE = 100;
+
     /**
      * 签名直传时的文件路径前缀
      */
     private static final String PREFIX = "example/";
+
     /**
      * 签名直传回调URL，确保该URL外网能访问
      */
@@ -107,6 +114,32 @@ public class AliyunUtils {
             ossClient.putObject(putObjectRequest);
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            ossClient.shutdown();
+        }
+    }
+
+    /**
+     * 这个方法用于在fileName下创建一个隐藏文件占位
+     *
+     * @param fileName 文件名称 eg: eample/dir/file/
+     */
+    public static void makeFile(String fileName) {
+        OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
+        log.info("在{}下创建一个{}文件占位.....", fileName, StringEnum.FILE_IGNORE_NAME.getValue());
+        //判断容器是否存在，不存在则创建
+        if (!ossClient.doesBucketExist(bucketName)) {
+            createBucket(ossClient);
+        }
+        if (!fileName.endsWith("/") || fileName.contains(".")) {
+            throw new AppException("文件名异常");
+        }
+        String objectName = fileName + StringEnum.FILE_IGNORE_NAME.getValue();
+        try {
+            String content = "占位文件，无意义";
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, objectName,
+                    new ByteArrayInputStream(content.getBytes(StandardCharsets.UTF_8)));
+            ossClient.putObject(putObjectRequest);
         } finally {
             ossClient.shutdown();
         }
@@ -190,45 +223,103 @@ public class AliyunUtils {
      * @return Map
      */
     public static List<FileVO> listFile(String keyPrefix) {
-        //判断对象路径最后是否带上'/'
-        if (keyPrefix.lastIndexOf("/") != keyPrefix.length() - 1) {
-            keyPrefix = keyPrefix + "/";
-        }
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
-        // 构造ListObjectsV2Request请求。
-        ListObjectsV2Request listObjectsV2Request = new ListObjectsV2Request(bucketName);
-        // 设置prefix参数来获取fun目录下的所有文件与文件夹。
-        listObjectsV2Request.setPrefix(keyPrefix);
-        // 设置正斜线（/）为文件夹的分隔符。
-        listObjectsV2Request.setDelimiter("/");
-        // 发起列举请求。
-        ListObjectsV2Result result = ossClient.listObjectsV2(listObjectsV2Request);
-        List<FileVO> fileList = new ArrayList<>();
-        //访问STS服务获取临时凭证
-        StsMessage stsMessage = getStsMessage();
-        // objectSummaries的列表中给出的是目录下的文件。
-        for (OSSObjectSummary objectSummary : result.getObjectSummaries()) {
-            //遇到一个官方bug,当访问example/test2/ 路径下的文件或者子目录时API会将example/test2/当作file返回
-            if (objectSummary.getKey().equals(keyPrefix)) {
-                continue;
+
+        try {
+            // 构造ListObjectsV2Request请求。
+            ListObjectsV2Request listObjectsV2Request = new ListObjectsV2Request(bucketName);
+
+            // 设置prefix参数来获取目录下的所有文件与文件夹。
+            listObjectsV2Request.setPrefix(keyPrefix);
+            // 设置正斜线（/）为文件夹的分隔符。
+            listObjectsV2Request.setDelimiter("/");
+
+            // 发起列举请求。
+            ListObjectsV2Result result = ossClient.listObjectsV2(listObjectsV2Request);
+
+            StsMessage stsMessage = getStsMessage();
+            List<FileVO> res = new ArrayList<>();
+            // 遍历文件。
+            System.out.println("Objects:");
+            // objectSummaries的列表中给出的是fun目录下的文件。
+            for (OSSObjectSummary objectSummary : result.getObjectSummaries()) {
+                String fileName = objectSummary.getKey();
+                System.out.println(fileName);
+                if (fileName.equals(keyPrefix) || fileName.contains(StringEnum.FILE_IGNORE_NAME.getValue())) {
+                    continue;
+                }
+                FileVO fileVO = new FileVO(StringEnum.FILE_TYPE_DOC.getValue(), fileName,
+                        getFileUrl(fileName, stsMessage));
+                res.add(fileVO);
             }
-            FileVO fileVO = new FileVO();
-            fileVO.setType("file");
-            fileVO.setLink(getFileUrl(objectSummary.getKey(), stsMessage));
-            fileVO.setFileName(subFileName(objectSummary.getKey(), keyPrefix));
-            fileList.add(fileVO);
+
+            // 遍历commonPrefix。
+            System.out.println("\nCommonPrefixes:");
+            // commonPrefixs列表中显示的是fun目录下的所有子文件夹。由于fun/movie/001.avi和fun/movie/007.avi属于fun文件夹下的movie目录，因此这两个文件未在列表中。
+            for (String commonPrefix : result.getCommonPrefixes()) {
+                System.out.println(commonPrefix);
+                FileVO fileVO = new FileVO(StringEnum.FILE_TYPE_DIR.getValue(), commonPrefix, null);
+                res.add(fileVO);
+            }
+            return res;
+        } catch (OSSException oe) {
+            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+                    + "but was rejected with an error response for some reason.");
+            System.out.println("Error Message:" + oe.getErrorMessage());
+            System.out.println("Error Code:" + oe.getErrorCode());
+            System.out.println("Request ID:" + oe.getRequestId());
+            System.out.println("Host ID:" + oe.getHostId());
+            throw new AppException(oe.getErrorMessage());
+        } catch (com.aliyun.oss.ClientException ce) {
+            System.out.println("Caught an ClientException, which means the client encountered "
+                    + "a serious internal problem while trying to communicate with OSS, "
+                    + "such as not being able to access the network.");
+            System.out.println("Error Message:" + ce.getMessage());
+            throw new AppException(ce.getMessage());
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
         }
-        // commonPrefixs列表中显示的是fun目录下的所有子文件夹。由于fun/movie/001.avi和fun/movie/007.avi属于fun文件夹下的movie目录，因此这两个文件未在列表中。
-        for (String commonPrefix : result.getCommonPrefixes()) {
-            FileVO fileVO = new FileVO();
-            fileVO.setType("dir");
-            fileVO.setFileName(subDirName(commonPrefix, keyPrefix));
-            fileList.add(fileVO);
+    }
+
+    /**
+     * 列出指定前缀下的所有文件
+     *
+     * @param keyPrefix 关键前缀
+     * @return {@code List<String>}
+     */
+    @SuppressWarnings("all")
+    public static List<String> listAllPath(String keyPrefix) {
+
+        // 创建OSSClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
+
+        try {
+            // 列举文件。如果不设置keyPrefix，则列举存储空间下的所有文件。如果设置keyPrefix，则列举包含指定前缀的文件。
+            ListObjectsV2Result result = ossClient.listObjectsV2(bucketName, keyPrefix);
+            List<OSSObjectSummary> ossObjectSummaries = result.getObjectSummaries();
+
+            List<String> res = new ArrayList<>();
+            log.info("该文件夹下的路径为：");
+            for (OSSObjectSummary s : ossObjectSummaries) {
+                String fileName = s.getKey();
+                if (fileName.contains(StringEnum.FILE_IGNORE_NAME.getValue())) {
+                    continue;
+                }
+                res.add(fileName);
+            }
+            return res;
+        } catch (OSSException oe) {
+            throw new AppException(oe.getErrorMessage());
+        } catch (com.aliyun.oss.ClientException ce) {
+            throw new AppException(ce.getMessage());
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
         }
-        // 关闭OSSClient。
-        ossClient.shutdown();
-        return fileList;
     }
 
     /**
@@ -289,7 +380,6 @@ public class AliyunUtils {
      *
      * @return OssPolicyResult
      */
-    @SuppressWarnings("all")
     public static OssPolicyResult getPolicy() {
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
@@ -376,46 +466,103 @@ public class AliyunUtils {
     /**
      * 删除目录及目录下的所有文件
      *
-     * @param path 前缀
+     * @param prefix 前缀
      */
-    public static void deleteDirAndFiles(String path) {
+    public static void deleteDirAndFiles(String prefix) {
+
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
-        // 删除目录及目录下的所有文件。
-        String nextMarker = null;
-        ObjectListing objectListing = null;
-        do {
-            ListObjectsRequest listObjectsRequest = new ListObjectsRequest(bucketName)
-                    .withPrefix(path)
-                    .withMarker(nextMarker);
 
-            objectListing = ossClient.listObjects(listObjectsRequest);
-            if (objectListing.getObjectSummaries().size() > 0) {
-                List<String> keys = new ArrayList<String>();
-                for (OSSObjectSummary s : objectListing.getObjectSummaries()) {
-                    System.out.println("key name: " + s.getKey());
-                    keys.add(s.getKey());
-                }
-                DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName).withKeys(keys).withEncodingType("url");
-                DeleteObjectsResult deleteObjectsResult = ossClient.deleteObjects(deleteObjectsRequest);
-                List<String> deletedObjects = deleteObjectsResult.getDeletedObjects();
-                try {
-                    for (String obj : deletedObjects) {
-                        String deleteObj = URLDecoder.decode(obj, "UTF-8");
-                        System.out.println(deleteObj);
+        try {
+            // 列举所有包含指定前缀的文件并删除。
+            String nextMarker = null;
+            ObjectListing objectListing = null;
+            do {
+                ListObjectsRequest listObjectsRequest = new ListObjectsRequest(bucketName)
+                        .withPrefix(prefix)
+                        .withMarker(nextMarker);
+
+                objectListing = ossClient.listObjects(listObjectsRequest);
+                if (objectListing.getObjectSummaries().size() > 0) {
+                    List<String> keys = new ArrayList<String>();
+                    for (OSSObjectSummary s : objectListing.getObjectSummaries()) {
+                        System.out.println("key name: " + s.getKey());
+                        keys.add(s.getKey());
                     }
-                } catch (UnsupportedEncodingException e) {
-                    e.printStackTrace();
-                    ossClient.shutdown();
-                    throw new AppException("删除失败,因为：" + e.getMessage());
+                    DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName).withKeys(keys).withEncodingType("url");
+                    DeleteObjectsResult deleteObjectsResult = ossClient.deleteObjects(deleteObjectsRequest);
+                    List<String> deletedObjects = deleteObjectsResult.getDeletedObjects();
+                    try {
+                        for (String obj : deletedObjects) {
+                            String deleteObj = URLDecoder.decode(obj, "UTF-8");
+                            System.out.println(deleteObj);
+                        }
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
                 }
-            } else {
-                throw new AppException("不存在该目录或文件");
+
+                nextMarker = objectListing.getNextMarker();
+            } while (objectListing.isTruncated());
+        } catch (OSSException oe) {
+            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+                    + "but was rejected with an error response for some reason.");
+            System.out.println("Error Message:" + oe.getErrorMessage());
+            System.out.println("Error Code:" + oe.getErrorCode());
+            System.out.println("Request ID:" + oe.getRequestId());
+            System.out.println("Host ID:" + oe.getHostId());
+            throw new AppException("不存在该文件或目录");
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
             }
-            nextMarker = objectListing.getNextMarker();
-        } while (objectListing.isTruncated());
-        // 关闭OSSClient。
-        ossClient.shutdown();
+        }
+    }
+
+    /**
+     * 复制文件
+     * 参数示例:sourcePath = test/dir/R-C.jpg, targetPath=test/dir/test/R-C.jpg
+     *
+     * @param sourcePath 源路径
+     * @param targetPath 目标路径
+     */
+    public static void copyFile(String sourcePath, String targetPath) {
+        // 创建OSSClient实例。
+        OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
+
+        try {
+            // 拷贝文件。
+            CopyObjectResult result = ossClient.copyObject(bucketName, sourcePath, bucketName, targetPath);
+            log.info("ETag: " + result.getETag() + " LastModified: " + result.getLastModified());
+        } catch (OSSException oe) {
+            throw new AppException(oe.getErrorMessage());
+        } catch (com.aliyun.oss.ClientException ce) {
+            throw new AppException(ce.getMessage());
+        } finally {
+            if (ossClient != null) {
+                ossClient.shutdown();
+            }
+        }
+    }
+
+    /**
+     * 复制文件夹(递归复制文件夹下面的文件)
+     *
+     * @param sourcePath 源路径
+     * @param targetPath 目标路径
+     */
+    public static void copyFolder(String sourcePath, String targetPath) {
+        List<String> list = listAllPath(sourcePath);
+        //判断文件夹下面是存在文件
+        if (ObjectUtil.isEmpty(list)) {
+            throw new AppException("云盘中还没有该文件夹或者文件");
+        } else {
+            //复制文件夹下的所有文件
+            for (String path : list) {
+                String dest = targetPath + path.replaceAll(sourcePath, "");
+                copyFile(path, dest);
+            }
+        }
     }
 
 

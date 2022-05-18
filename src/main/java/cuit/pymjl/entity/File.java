@@ -57,6 +57,11 @@ public class File implements Serializable {
     private String type;
 
     /**
+     * 逻辑删除，默认0，1表示该文件已被删除，存在回收站中
+     */
+    private Integer isDeleted;
+
+    /**
      * 文件大小，默认0，单位byte
      */
     private Long size;

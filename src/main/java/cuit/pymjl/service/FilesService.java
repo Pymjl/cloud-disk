@@ -23,17 +23,17 @@ public interface FilesService extends IService<File> {
      * @param file   文件
      * @param userId 用户id
      * @param path   路径
-     * @return {@code Long}
      */
-    Long upload(MultipartFile file, Long userId, String path);
+    void upload(MultipartFile file, Long userId, String path);
 
     /**
-     * 通过用户ID查询文件
+     * 查询文件信息
      *
-     * @param id id
+     * @param path   路径
+     * @param userId 用户id
      * @return {@code FileVO}
      */
-    FileVO queryFileById(Long id);
+    FileVO queryFile(String path, Long userId);
 
     /**
      * 查询文件列表
@@ -47,19 +47,35 @@ public interface FilesService extends IService<File> {
     /**
      * 更新文件名字
      *
-     * @param fileName 文件名称
-     * @param userId   用户id
-     * @param fileId   文件标识
+     * @param newFileName  文件名称
+     * @param originalName 原来的名字
+     * @param userId       用户id
      */
-    void updateFileName(String fileName, Long userId, Long fileId);
+    void updateFileName(String newFileName, String originalName, Long userId);
 
     /**
-     * 删除文件,这是逻辑删除，并不会删除存在于阿里云OSS上的源文件
+     * 删除文件或文件夹
      *
-     * @param userId 用户id
-     * @param fileId 文件标识
-     * @param path   路径
+     * @param originalFileName 原始文件名字
+     * @param userId           用户id
      */
-    void deleteFile(Long userId, Long fileId, String path);
+    void deleteFileOrFolder(String originalFileName, Long userId);
+
+    /**
+     * 移动文件
+     *
+     * @param originalPath 原始路径
+     * @param targetPath   目标路径
+     * @param userId       用户id
+     */
+    void moveFile(String originalPath, String targetPath, Long userId);
+
+    /**
+     * 永远删除文件
+     *
+     * @param targetFileName 目标文件名字
+     * @param userId         用户id
+     */
+    void deleteFileForever(String targetFileName, Long userId);
 
 }

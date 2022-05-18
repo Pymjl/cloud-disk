@@ -13,6 +13,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.constraints.NotNull;
+import java.util.List;
 
 /**
  * <p>
@@ -30,19 +32,41 @@ public class FilesController {
     FilesService filesService;
 
     @PostMapping("/upload")
-    public Result<Long> upload(@RequestParam("file") MultipartFile file,
-                               HttpServletRequest request,
-                               @RequestParam("path") String path) {
+    public Result<String> upload(@RequestParam("file") MultipartFile file,
+                                 HttpServletRequest request,
+                                 @RequestParam("path") String path) {
         String userId = (String) request.getAttribute("userId");
         check(userId);
-        Long fileId = filesService.upload(file, Long.parseLong(userId), path);
-        return ResultUtil.success(fileId);
+        filesService.upload(file, Long.parseLong(userId), path);
+        return ResultUtil.success();
     }
 
-    @GetMapping("/{id}")
-    public Result<FileVO> queryFileById(@PathVariable("id") Long id) {
-        FileVO file = filesService.queryFileById(id);
+    @GetMapping("/info")
+    public Result<FileVO> queryFile(@NotNull(message = "文件名不能为空") @RequestParam("path") String path,
+                                    HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        FileVO file = filesService.queryFile(path, Long.parseLong(userId));
         return ResultUtil.success(file);
+    }
+
+    @GetMapping("/list")
+    public Result<List<FileVO>> queryFiles(@RequestParam("path") String path,
+                                           HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        List<FileVO> vos = filesService.queryFiles(path, Long.parseLong(userId));
+        return ResultUtil.success(vos);
+    }
+
+    @PostMapping("/move")
+    public Result<String> copy(@NotNull(message = "文件名不能为空") @RequestParam("originPath") String originPath,
+                               @NotNull(message = "文件名不能为空") @RequestParam("targetPath") String targetPath,
+                               HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.moveFile(originPath, targetPath, Long.parseLong(userId));
+        return ResultUtil.success();
     }
 
     /**

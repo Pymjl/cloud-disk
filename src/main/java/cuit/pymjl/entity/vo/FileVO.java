@@ -1,7 +1,9 @@
 package cuit.pymjl.entity.vo;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
@@ -10,13 +12,11 @@ import java.util.Date;
  * @date 2022/2/24 22:33
  */
 @Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class FileVO {
-    private Long id;
     private String type;
     @JsonProperty("name")
     private String fileName;
     private String link;
-    private Date createTime;
-    private Date updateTime;
-    private Long size;
 }

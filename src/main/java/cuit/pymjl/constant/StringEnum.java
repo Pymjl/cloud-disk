@@ -31,8 +31,13 @@ public enum StringEnum {
      * 文件默认前缀
      */
     FILE_DEFAULT_PREFIX("cloud-disk/files/"),
+    FILE_DEFAULT_GARBAGE_PREFIX("cloud-disk/garbage/"),
     FILE_TYPE_DIR("dir"),
-    FILE_TYPE_DOC("file");
+    FILE_TYPE_DOC("file"),
+    /**
+     * 忽略文件名
+     */
+    FILE_IGNORE_NAME("cloud-disk-ignore.txt");
 
     private String value;
 
