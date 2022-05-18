@@ -1,15 +1,27 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
+import { useRouter } from 'vue-router'
+import { FormInst, useLoadingBar, useMessage } from 'naive-ui'
 import BgWrapper from '@/components/login/BgWrapper.vue'
 import ImageVerify from '@/components/login/ImageVerify.vue'
 import EmailVerify from '@/components/login/EmailVerify.vue'
+import { login } from '@/api/login'
+import ls from '@/utils/ls'
 
 export default defineComponent({
   name: 'LoginPage',
   components: { BgWrapper, ImageVerify, EmailVerify },
   setup() {
+    const router = useRouter()
+    const message = useMessage()
+    const loadingBar = useLoadingBar()
+    const goTo = (to: string) => {
+      loadingBar.start()
+      router.push(to).then(() => loadingBar.finish())
+    }
+
     // 表单验证
-    const formRef = ref(null)
+    const formRef = ref<FormInst | null>(null)
     const formValue = ref({
       username: '',
       password: '',
@@ -38,10 +50,40 @@ export default defineComponent({
         trigger: 'input'
       }
     }
+    const handleValidateClick = (e: MouseEvent) => {
+      e.preventDefault()
+      formRef.value?.validate((errors) => {
+        if (!errors) {
+          // 表单验证通过即可登录
+          login(formValue.value.username, formValue.value.password, formValue.value.emailVerify, ls.getItem('emailKey')).then(
+            ({ succeed, res }) => {
+              if (succeed) {
+                ls.setItem('token', res.result)
+                message.success('登录成功，即将跳转到首页')
+              } else {
+                message.warning(res.message)
+              }
+            },
+            (err) => {
+              if (err.response) {
+                // 服务器响应状态码不属于 2xx
+                message.error(err.response.data.error)
+              } else if (err.request) {
+                // 未收到服务器响应
+                message.error('登录请求发送失败，请检查您的网络')
+              }
+            }
+          )
+        }
+      })
+    }
+
     return {
       formRef,
       formValue,
-      rules
+      rules,
+      goTo,
+      handleValidateClick
     }
   }
 })
@@ -71,8 +113,8 @@ export default defineComponent({
           </NFormItem>
         </NForm>
         <div class="footer">
-          <NButton secondary type="info">新建账号</NButton>
-          <NButton type="primary">登录</NButton>
+          <NButton secondary type="info" @click="goTo('/register')">新建账号</NButton>
+          <NButton type="primary" @click="handleValidateClick">登录</NButton>
         </div>
       </div>
     </div>

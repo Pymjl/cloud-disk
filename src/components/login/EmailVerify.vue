@@ -42,9 +42,6 @@ export default defineComponent({
               } else if (err.request) {
                 // 未收到服务器响应
                 message.error('获取验证码请求发送失败，请检查您的网络')
-              } else {
-                // 在构建请求时发生的其他错误
-                message.error('获取验证码时发生了未知错误')
               }
             }
           )

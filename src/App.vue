@@ -1,7 +1,9 @@
 <template>
   <NMessageProvider>
     <NDialogProvider>
-      <router-view></router-view>
+      <NLoadingBarProvider>
+        <router-view></router-view>
+      </NLoadingBarProvider>
     </NDialogProvider>
   </NMessageProvider>
 </template>
