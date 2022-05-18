@@ -1,5 +1,9 @@
 <template>
-  <router-view></router-view>
+  <NMessageProvider>
+    <NDialogProvider>
+      <router-view></router-view>
+    </NDialogProvider>
+  </NMessageProvider>
 </template>
 
 <style lang="scss">

@@ -1,7 +1,9 @@
 import axios from 'axios'
 import ls from './ls'
+import { API_URL } from '@/config'
 
 const Axios = axios.create({
+  baseURL: API_URL,
   timeout: 10000
 })
 
@@ -76,13 +78,11 @@ export const cleanReq = () => {
  * 请求构造工厂
  * @param config 请求配置参数，由于设计缺陷，传入的 headers 参数将被忽略
  */
-export const ARFactory = async (
-  config: import('axios').AxiosRequestConfig
-): Promise<{ succeed: boolean; res: Record<string, unknown> }> => {
+export const ARFactory = async (config: import('axios').AxiosRequestConfig): Promise<{ succeed: boolean; res: unknown }> => {
   const {
     data: { succeed = false, ...res }
   } = await Axios(
     ls.getItem('token') ? { ...config, headers: { ...config.headers, Authorization: `Bearer ${ls.getItem('token')}` } } : config
   )
-  return { succeed, ...res }
+  return { succeed, res }
 }
