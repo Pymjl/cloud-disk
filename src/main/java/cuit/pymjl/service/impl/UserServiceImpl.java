@@ -111,12 +111,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public String login(UserDTO userDTO) {
         //验证验证码
-        log.info("开始验证邮箱验证码==>[{}]......", userDTO.getVerifyCode());
-        String code = (String) redisUtil.get(userDTO.getVerifyKey());
-        redisUtil.del(userDTO.getVerifyKey());
-        if (StrUtil.isBlank(code) || !code.equals(userDTO.getVerifyCode())) {
-            throw new AppException("邮箱验证码错误");
-        }
+        //FIXME 开发阶段，暂时注销验证码功能，可以直接登录
+//        log.info("开始验证邮箱验证码==>[{}]......", userDTO.getVerifyCode());
+//        String code = (String) redisUtil.get(userDTO.getVerifyKey());
+//        redisUtil.del(userDTO.getVerifyKey());
+//        if (StrUtil.isBlank(code) || !code.equals(userDTO.getVerifyCode())) {
+//            throw new AppException("邮箱验证码错误");
+//        }
 
         //校验账号
         log.info("邮箱验证码验证成功，开始校验用户账号......");
