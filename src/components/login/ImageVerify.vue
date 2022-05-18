@@ -1,20 +1,3 @@
-<template>
-  <div class="image-verify">
-    <NButton
-      strong
-      secondary
-      :type="isLoading || verifyCode ? 'success' : 'error'"
-      :style="verifyCode ? { backgroundImage: `url(${verifyCode})` } : null"
-      :loading="isLoading"
-      @click="getCode"
-    >
-      <div v-show="!isLoading && !verifyCode" class="codeMask">
-        <NIcon :style="{ marginRight: '3px' }" size="16"><Reset /></NIcon>重新加载
-      </div>
-    </NButton>
-  </div>
-</template>
-
 <script lang="ts">
 import { defineComponent, ref, onMounted } from 'vue'
 import { Reset } from '@vicons/carbon'
@@ -73,6 +56,23 @@ export default defineComponent({
   }
 })
 </script>
+
+<template>
+  <div class="image-verify">
+    <NButton
+      strong
+      secondary
+      :type="isLoading || verifyCode ? 'success' : 'error'"
+      :style="verifyCode ? { backgroundImage: `url(${verifyCode})` } : null"
+      :loading="isLoading"
+      @click="getCode"
+    >
+      <div v-show="!isLoading && !verifyCode" class="codeMask">
+        <NIcon :style="{ marginRight: '3px' }" size="16"><Reset /></NIcon>重新加载
+      </div>
+    </NButton>
+  </div>
+</template>
 
 <style lang="scss">
 .image-verify {

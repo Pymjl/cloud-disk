@@ -1,9 +1,3 @@
-<template>
-  <div class="email-verify">
-    <NButton secondary :loading="isLoading" @click="getCode">获取邮箱验证码</NButton>
-  </div>
-</template>
-
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
 import { NButton, useMessage } from 'naive-ui'
@@ -70,6 +64,12 @@ export default defineComponent({
   }
 })
 </script>
+
+<template>
+  <div class="email-verify">
+    <NButton secondary :loading="isLoading" @click="getCode">获取邮箱验证码</NButton>
+  </div>
+</template>
 
 <style lang="scss">
 .email-verify {
