@@ -40,3 +40,25 @@ export const login = (username: string, password: string, verifyCode: string, ve
       message: string
     }
   }>
+
+/**
+ * 注册
+ * @param username 用户名
+ * @param nickname 昵称
+ * @param password 密码
+ * @param verifyCode 邮箱验证码
+ * @param verifyKey 邮箱验证码标识
+ * @returns 仅状态响应体，result 为 null
+ */
+export const register = (username: string, nickname: string, password: string, verifyCode: string, verifyKey: string) =>
+  ARFactory({
+    url: '/register',
+    method: 'post',
+    data: { username, nickname, password, verifyCode, verifyKey }
+  }) as Promise<{
+    succeed: boolean
+    res: {
+      result: null
+      message: string
+    }
+  }>

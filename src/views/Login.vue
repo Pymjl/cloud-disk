@@ -59,7 +59,8 @@ export default defineComponent({
             ({ succeed, res }) => {
               if (succeed) {
                 ls.setItem('token', res.result)
-                message.success('登录成功，即将跳转到首页')
+                message.success('登录成功')
+                goTo('/files')
               } else {
                 message.warning(res.message)
               }
