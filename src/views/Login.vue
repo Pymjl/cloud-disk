@@ -1,6 +1,5 @@
 <script lang="ts">
 import { defineComponent, ref } from 'vue'
-import { useMessage } from 'naive-ui'
 import BgWrapper from '@/components/login/BgWrapper.vue'
 import ImageVerify from '@/components/login/ImageVerify.vue'
 import EmailVerify from '@/components/login/EmailVerify.vue'
@@ -10,7 +9,6 @@ export default defineComponent({
   components: { BgWrapper, ImageVerify, EmailVerify },
   setup() {
     // 表单验证
-    const message = useMessage()
     const formRef = ref(null)
     const formValue = ref({
       username: '',
@@ -41,7 +39,6 @@ export default defineComponent({
       }
     }
     return {
-      message,
       formRef,
       formValue,
       rules

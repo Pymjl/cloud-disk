@@ -1,3 +1,11 @@
+<script lang="ts">
+import { defineComponent } from 'vue'
+
+export default defineComponent({
+  name: 'BgWrapper'
+})
+</script>
+
 <template>
   <div class="bg-wrapper">
     <div class="content">
