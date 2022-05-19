@@ -120,7 +120,7 @@ export default defineComponent({
   <BgWrapper>
     <div class="register-card">
       <div class="header">
-        <h1>注册</h1>
+        <h1>企业云盘 - 注册</h1>
       </div>
       <div class="main">
         <NForm ref="formRef" :show-label="false" :model="formValue" :rules="rules">
