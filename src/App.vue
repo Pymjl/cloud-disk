@@ -2,7 +2,7 @@
 import { defineComponent, onMounted } from 'vue'
 import ls from '@/utils/ls'
 
-defineComponent({
+export default defineComponent({
   name: 'App',
   setup() {
     // FIXME 此处预设了 emailKey，用于配合后端暂时关闭验证机制
