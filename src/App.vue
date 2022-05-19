@@ -1,13 +1,21 @@
 <script lang="ts">
-import { defineComponent, onMounted } from 'vue'
-import ls from '@/utils/ls'
+import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
   name: 'App',
-  setup() {
-    // FIXME 此处预设了 emailKey，用于配合后端暂时关闭验证机制
-    onMounted(() => {
-      ls.setItem('emailKey', '123')
+  // 注册了一些全局通用的状态
+  provide: {
+    randomId: ref(''),
+    // FIXME 这里配合后端将 emailKey 设置为非空以屏蔽邮箱验证
+    emailKey: ref('123'),
+    userInfo: ref({
+      id: 0,
+      username: '',
+      nickname: '',
+      avatar: '',
+      identity: 0,
+      createTime: 0,
+      updateTime: 0
     })
   }
 })

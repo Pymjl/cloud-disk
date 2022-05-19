@@ -1,12 +1,11 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, inject, Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { FormInst, FormItemRule, useLoadingBar, useMessage } from 'naive-ui'
 import BgWrapper from '@/components/login/BgWrapper.vue'
 import ImageVerify from '@/components/login/ImageVerify.vue'
 import EmailVerify from '@/components/login/EmailVerify.vue'
 import { register } from '@/api/login'
-import ls from '@/utils/ls'
 
 export default defineComponent({
   name: 'RegisterPage',
@@ -19,6 +18,9 @@ export default defineComponent({
       loadingBar.start()
       router.push(to).then(() => loadingBar.finish())
     }
+
+    // emailKey 是从 App.vue 中注入的
+    const emailKey = inject('emailKey') as Ref<string>
 
     // 表单验证
     const formRef = ref<FormInst | null>(null)
@@ -80,11 +82,10 @@ export default defineComponent({
             formValue.value.nickname,
             formValue.value.password,
             formValue.value.emailVerify,
-            ls.getItem('emailKey')
+            emailKey.value
           ).then(
             ({ succeed, res }) => {
               if (succeed) {
-                ls.setItem('token', res.result)
                 message.success('注册成功')
                 goTo('/')
               } else {

@@ -1,9 +1,8 @@
 <script lang="ts">
-import { defineComponent, ref, onMounted } from 'vue'
+import { defineComponent, ref, onMounted, inject, Ref } from 'vue'
 import { Reset } from '@vicons/carbon'
 import { NIcon, NButton, useMessage } from 'naive-ui'
 import { API_URL } from '@/config'
-import ls from '@/utils/ls'
 import { uuid } from '@/utils/helper'
 
 export default defineComponent({
@@ -18,10 +17,13 @@ export default defineComponent({
     const isLoading = ref(false)
     const verifyCode = ref('')
 
+    // randomId 是从 App.vue 中注入的
+    const randomId = inject('randomId') as Ref<string>
+
     const getCode = () => {
       isLoading.value = true
       // 获取验证码
-      fetch(`${API_URL}/codes/image/${ls.getItem('randomID')}`)
+      fetch(`${API_URL}/codes/image/${randomId.value}`)
         .then((res) => {
           if (res.ok) {
             return res.blob()
@@ -44,7 +46,7 @@ export default defineComponent({
     }
 
     onMounted(() => {
-      ls.setItem('randomID', uuid())
+      randomId.value = uuid()
       getCode()
     })
 

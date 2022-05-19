@@ -1,8 +1,7 @@
 <script lang="ts">
-import { defineComponent, ref } from 'vue'
+import { defineComponent, ref, inject, Ref } from 'vue'
 import { NButton, useMessage } from 'naive-ui'
 import { getEmailVerify } from '@/api/login'
-import ls from '@/utils/ls'
 
 export default defineComponent({
   name: 'EmailVerify',
@@ -22,14 +21,19 @@ export default defineComponent({
   setup(props) {
     const message = useMessage()
     const isLoading = ref(false)
+
+    // 下面两个响应式变量是从 App.vue 中注入的
+    const randomId = inject('randomId') as Ref<string>
+    const emailKey = inject('emailKey') as Ref<string>
+
     const getCode = () => {
       isLoading.value = true
       if (props.username && props.code) {
-        getEmailVerify(props.username, ls.getItem('randomID'), props.code)
+        getEmailVerify(props.username, randomId.value, props.code)
           .then(
             ({ succeed, res }) => {
               if (succeed) {
-                ls.setItem('emailKey', res.result)
+                emailKey.value = res.result
                 message.success('邮箱验证码发送成功，请检查您的邮箱')
               } else {
                 message.warning(res.message)
