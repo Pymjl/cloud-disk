@@ -1,8 +1,9 @@
 <script lang="ts">
-import { defineComponent, onMounted, inject, Ref } from 'vue'
-import { Settings } from '@vicons/carbon'
+import { defineComponent, onMounted, inject, Ref, Component, h } from 'vue'
+import { useRouter } from 'vue-router'
+import { Settings, UserProfile, Logout } from '@vicons/carbon'
 import { getUserInfo } from '@/api/user'
-import { useMessage } from 'naive-ui'
+import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 
 export default defineComponent({
   name: 'TopNav',
@@ -41,17 +42,70 @@ export default defineComponent({
       )
     })
 
-    return { userInfo }
+    const loadingBar = useLoadingBar()
+    const router = useRouter()
+    const goTo = (to: string) => {
+      loadingBar.start()
+      router.push(to).then(() => loadingBar.finish())
+    }
+
+    // 渲染图标工具函数
+    const renderIcon = (icon: Component) => {
+      return () => {
+        return h(NIcon, null, {
+          default: () => h(icon)
+        })
+      }
+    }
+
+    // 头像下拉菜单内容
+    const dropdownOptions = [
+      {
+        label: '个人中心',
+        key: 'personal',
+        icon: renderIcon(UserProfile)
+      },
+      {
+        label: '退出登录',
+        key: 'logout',
+        icon: renderIcon(Logout)
+      }
+    ]
+
+    // 头像下拉菜单选项动作
+    const handleDropdownSelect = (key: string) => {
+      switch (key) {
+        case 'personal':
+          goTo('/personal')
+          break
+        case 'logout':
+          localStorage.clear()
+          // eslint-disable-next-line no-restricted-globals
+          location.replace('/')
+          break
+        default:
+          break
+      }
+    }
+
+    return { userInfo, dropdownOptions, handleDropdownSelect, goTo }
   }
 })
 </script>
 
 <template>
   <nav class="top-nav">
-    <h1 class="title">企业云盘</h1>
+    <h1 class="title" @click="goTo('/files')">企业云盘</h1>
     <div class="actions">
-      <NIcon size="22.4"><Settings /></NIcon>
-      <NAvatar :src="userInfo.avatar" :size="38" round />
+      <!-- 用户权限值为 1 时显示管理面板入口 -->
+      <NButton v-if="userInfo.identity === 1" quaternary circle size="large">
+        <template #icon>
+          <NIcon><Settings /></NIcon>
+        </template>
+      </NButton>
+      <NDropdown trigger="hover" :options="dropdownOptions" @select="handleDropdownSelect">
+        <NAvatar :src="userInfo.avatar" :size="38" round @click="goTo('/personal')" />
+      </NDropdown>
     </div>
   </nav>
 </template>
@@ -75,6 +129,10 @@ export default defineComponent({
     align-items: center;
     margin-right: 1.4rem;
     margin-left: auto;
+
+    :not(:last-child) {
+      margin-right: 0.5rem;
+    }
   }
 }
 </style>

@@ -72,8 +72,13 @@ router.beforeEach((to, from, next) => {
       next('/')
     }
   } else {
-    // 其他不需要 Token 的页面，直接进入
-    next()
+    if (ls.getItem('token')) {
+      // 其他不需要 Token 的页面（登录和注册），若有 Token 直接进入文件管理页
+      next('/files')
+    } else {
+      // 没有 Token，继续访问
+      next()
+    }
   }
 })
 
