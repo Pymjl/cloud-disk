@@ -1,3 +1,18 @@
+<script lang="ts">
+import { defineComponent, onMounted } from 'vue'
+import ls from '@/utils/ls'
+
+defineComponent({
+  name: 'App',
+  setup() {
+    // FIXME 此处预设了 emailKey，用于配合后端暂时关闭验证机制
+    onMounted(() => {
+      ls.setItem('emailKey', '123')
+    })
+  }
+})
+</script>
+
 <template>
   <NMessageProvider>
     <NDialogProvider>

@@ -18,6 +18,7 @@ declare module '@vue/runtime-core' {
     NMessageProvider: typeof import('naive-ui')['NMessageProvider']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
+    TopNav: typeof import('./src/components/public/TopNav.vue')['default']
   }
 }
 
