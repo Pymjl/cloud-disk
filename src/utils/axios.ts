@@ -57,7 +57,9 @@ Axios.interceptors.response.use(
 Axios.interceptors.response.use(
   (response) => {
     if (response.data.message === 'token已过期,请重新登录') {
+      // 清空本地存储（清除 Token）
       ls.clear()
+      // 刷新页面将会导致路由前置守卫发现 Token 已不存在，然后会跳转到登录页面
       // eslint-disable-next-line no-restricted-globals
       location.reload()
     }

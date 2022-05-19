@@ -80,8 +80,7 @@ export default defineComponent({
           break
         case 'logout':
           localStorage.clear()
-          // eslint-disable-next-line no-restricted-globals
-          location.replace('/')
+          goTo('/')
           break
         default:
           break
