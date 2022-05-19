@@ -11,11 +11,11 @@ Vue 3 + TypeScript + Axios + Naive UI.
 ### 启动开发环境服务器（支持热重载）
 
 ```bash
-pnpm dev
+npm run dev
 ```
 
 ### 编译生产环境代码
 
 ```bash
-pnpm build
+npm run build
 ```
