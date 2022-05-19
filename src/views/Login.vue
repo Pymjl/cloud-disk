@@ -127,7 +127,7 @@ export default defineComponent({
   width: 20rem;
   padding: 0 2rem;
   background-color: #fff;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #eee;
   border-radius: 5px;
 
   .header {
