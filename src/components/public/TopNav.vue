@@ -19,6 +19,8 @@ export default defineComponent({
       createTime: number
       updateTime: number
     }>
+    const personalActive = inject('personalActive') as Ref<boolean>
+    const adminActive = inject('adminActive') as Ref<boolean>
 
     onMounted(() => {
       // 每次进入页面都获取用户信息
@@ -61,7 +63,7 @@ export default defineComponent({
     // 头像下拉菜单内容
     const dropdownOptions = [
       {
-        label: '个人中心',
+        label: '个人信息',
         key: 'personal',
         icon: renderIcon(UserProfile)
       },
@@ -76,7 +78,7 @@ export default defineComponent({
     const handleDropdownSelect = (key: string) => {
       switch (key) {
         case 'personal':
-          // TODO 这里打开一个抽屉组件
+          personalActive.value = true
           break
         case 'logout':
           localStorage.clear()
@@ -87,7 +89,14 @@ export default defineComponent({
       }
     }
 
-    return { userInfo, dropdownOptions, handleDropdownSelect, goTo }
+    return {
+      userInfo,
+      dropdownOptions,
+      handleDropdownSelect,
+      goTo,
+      openAdmin: () => (adminActive.value = true),
+      openPersonal: () => (personalActive.value = true)
+    }
   }
 })
 </script>
@@ -97,14 +106,13 @@ export default defineComponent({
     <h1 class="title" @click="goTo('/')">企业云盘</h1>
     <div class="actions">
       <!-- 用户权限值为 1 时显示管理面板入口 -->
-      <NButton v-if="userInfo.identity === 1" quaternary circle size="large">
+      <NButton v-if="userInfo.identity === 1" quaternary circle size="large" @click="openAdmin">
         <template #icon>
           <NIcon><Settings /></NIcon>
         </template>
       </NButton>
       <NDropdown trigger="hover" :options="dropdownOptions" @select="handleDropdownSelect">
-        <!-- TODO 点击头像开启抽屉组件 -->
-        <NAvatar :src="userInfo.avatar" :size="38" round />
+        <NAvatar :src="userInfo.avatar" :size="38" round @click="openPersonal" />
       </NDropdown>
     </div>
   </nav>

@@ -3,7 +3,7 @@ import { defineComponent, ref } from 'vue'
 
 export default defineComponent({
   name: 'App',
-  // 注册了一些全局通用的状态
+  // 注册了一些全局状态
   provide: {
     randomId: ref(''),
     // FIXME 这里配合后端将 emailKey 设置为非空以屏蔽邮箱验证
@@ -16,7 +16,9 @@ export default defineComponent({
       identity: 0,
       createTime: 0,
       updateTime: 0
-    })
+    }),
+    personalActive: ref(false),
+    adminActive: ref(false)
   }
 })
 </script>
@@ -38,9 +40,9 @@ export default defineComponent({
   margin: 0;
 }
 
-body {
-  // 保证最小页面宽度为 1024px
-  min-width: 1024px;
+#app {
+  // 保证最小页面宽度为 60rem
+  min-width: 60rem;
 
   // 保证中文字体显示效果
   font-family: -apple-system, 'Noto Sans', 'Helvetica Neue', Helvetica, 'Nimbus Sans L', Arial, 'Liberation Sans', 'PingFang SC',
