@@ -4,6 +4,15 @@ import ls from '@/utils/ls'
 const routes: Array<RouteRecordRaw> = [
   {
     path: '/',
+    name: 'FilesPage',
+    meta: {
+      title: '企业云盘',
+      requireAuth: true
+    },
+    component: () => import('@/views/Files.vue')
+  },
+  {
+    path: '/login',
     name: 'LoginPage',
     meta: {
       title: '企业云盘 - 登录'
@@ -19,36 +28,9 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Register.vue')
   },
   {
-    path: '/files',
-    name: 'FilesPage',
-    meta: {
-      title: '企业云盘 - 文件',
-      requireAuth: true
-    },
-    component: () => import('@/views/Files.vue')
-  },
-  {
-    path: '/personal',
-    name: 'PersonalPage',
-    meta: {
-      title: '企业云盘 - 个人中心',
-      requireAuth: true
-    },
-    component: () => import('@/views/Personal.vue')
-  },
-  {
-    path: '/admin',
-    name: 'AdminPage',
-    meta: {
-      title: '企业云盘 - 管理面板',
-      requireAuth: true
-    },
-    component: () => import('@/views/Admin.vue')
-  },
-  {
     // 将所有未匹配的路由重定向到登录页
     path: '/:pathMatch(.*)*',
-    redirect: '/'
+    redirect: '/login'
   }
 ]
 
@@ -69,12 +51,12 @@ router.beforeEach((to, from, next) => {
       next()
     } else {
       // 没有 Token，跳转到登录页
-      next('/')
+      next('/login')
     }
   } else {
     if (ls.getItem('token')) {
       // 其他不需要 Token 的页面（登录和注册），若有 Token 直接进入文件管理页
-      next('/files')
+      next('/')
     } else {
       // 没有 Token，继续访问
       next()

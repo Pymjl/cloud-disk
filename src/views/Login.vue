@@ -63,7 +63,7 @@ export default defineComponent({
               if (succeed) {
                 ls.setItem('token', res.result)
                 message.success('登录成功')
-                goTo('/files')
+                goTo('/')
               } else {
                 message.warning(res.message)
               }

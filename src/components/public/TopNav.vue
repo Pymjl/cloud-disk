@@ -76,11 +76,11 @@ export default defineComponent({
     const handleDropdownSelect = (key: string) => {
       switch (key) {
         case 'personal':
-          goTo('/personal')
+          // TODO 这里打开一个抽屉组件
           break
         case 'logout':
           localStorage.clear()
-          goTo('/')
+          goTo('/login')
           break
         default:
           break
@@ -94,7 +94,7 @@ export default defineComponent({
 
 <template>
   <nav class="top-nav">
-    <h1 class="title" @click="goTo('/files')">企业云盘</h1>
+    <h1 class="title" @click="goTo('/')">企业云盘</h1>
     <div class="actions">
       <!-- 用户权限值为 1 时显示管理面板入口 -->
       <NButton v-if="userInfo.identity === 1" quaternary circle size="large">
@@ -103,7 +103,8 @@ export default defineComponent({
         </template>
       </NButton>
       <NDropdown trigger="hover" :options="dropdownOptions" @select="handleDropdownSelect">
-        <NAvatar :src="userInfo.avatar" :size="38" round @click="goTo('/personal')" />
+        <!-- TODO 点击头像开启抽屉组件 -->
+        <NAvatar :src="userInfo.avatar" :size="38" round />
       </NDropdown>
     </div>
   </nav>

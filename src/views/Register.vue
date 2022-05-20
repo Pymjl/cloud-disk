@@ -87,7 +87,7 @@ export default defineComponent({
             ({ succeed, res }) => {
               if (succeed) {
                 message.success('注册成功')
-                goTo('/')
+                goTo('/login')
               } else {
                 message.warning(res.message)
               }
