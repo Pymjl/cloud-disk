@@ -2,6 +2,7 @@
 import { defineComponent, onMounted, inject, Ref, Component, h } from 'vue'
 import { useRouter } from 'vue-router'
 import { Settings, UserProfile, Logout } from '@vicons/carbon'
+import { logout } from '@/api/login'
 import { getUserInfo } from '@/api/user'
 import { useMessage, useLoadingBar, NIcon } from 'naive-ui'
 
@@ -81,7 +82,11 @@ export default defineComponent({
           personalActive.value = true
           break
         case 'logout':
+          // 通知后端本地已登出，这里不对后端响应做任何处理
+          logout()
+          // 清空本地存储（Token 等）
           localStorage.clear()
+          // 跳转到登录页
           goTo('/login')
           break
         default:
