@@ -1,15 +1,14 @@
 <script lang="ts">
-import { defineComponent, ref, inject, Ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { FormInst, useLoadingBar, useMessage } from 'naive-ui'
 import BgWrapper from '@/components/login/BgWrapper.vue'
 import ImageVerify from '@/components/login/ImageVerify.vue'
 import EmailVerify from '@/components/login/EmailVerify.vue'
-import { login } from '@/api/login'
-import ls from '@/utils/ls'
+import { recovery } from '@/api/login'
 
 export default defineComponent({
-  name: 'LoginPage',
+  name: 'ForgetPage',
   components: { BgWrapper, ImageVerify, EmailVerify },
   setup() {
     const router = useRouter()
@@ -20,14 +19,10 @@ export default defineComponent({
       router.push(to).then(() => loadingBar.finish())
     }
 
-    // emailKey 是从 App.vue 中注入的
-    const emailKey = inject('emailKey') as Ref<string>
-
     // 表单验证
     const formRef = ref<FormInst | null>(null)
     const formValue = ref({
       username: '',
-      password: '',
       imageVerify: '',
       emailVerify: ''
     })
@@ -35,11 +30,6 @@ export default defineComponent({
       username: {
         required: true,
         message: '请输入邮箱地址',
-        trigger: 'input'
-      },
-      password: {
-        required: true,
-        message: '请输入密码',
         trigger: 'input'
       },
       imageVerify: {
@@ -57,12 +47,11 @@ export default defineComponent({
       e.preventDefault()
       formRef.value?.validate((errors) => {
         if (!errors) {
-          // 表单验证通过即可登录
-          login(formValue.value.username, formValue.value.password, formValue.value.emailVerify, emailKey.value).then(
+          // 表单验证通过即可发送请求
+          recovery(formValue.value.username, formValue.value.emailVerify).then(
             ({ succeed, res }) => {
               if (succeed) {
-                ls.setItem('token', res.result)
-                message.success('登录成功')
+                message.success('找回密码邮件已发送至您的邮箱，请注意查收')
                 goTo('/')
               } else {
                 message.warning(res.message)
@@ -74,7 +63,7 @@ export default defineComponent({
                 message.error(err.response.data.error)
               } else if (err.request) {
                 // 未收到服务器响应
-                message.error('登录请求发送失败，请检查您的网络')
+                message.error('找回密码请求发送失败，请检查您的网络')
               }
             }
           )
@@ -97,15 +86,12 @@ export default defineComponent({
   <BgWrapper>
     <div class="login-card">
       <div class="header">
-        <h1>企业云盘 - 登录</h1>
+        <h1>企业云盘 - 找回密码</h1>
       </div>
       <div class="main">
         <NForm ref="formRef" :show-label="false" :model="formValue" :rules="rules">
           <NFormItem path="username">
             <NInput v-model:value="formValue.username" placeholder="邮箱地址" autofocus />
-          </NFormItem>
-          <NFormItem path="password">
-            <NInput v-model:value="formValue.password" type="password" show-password-on="mousedown" placeholder="密码" />
           </NFormItem>
           <NFormItem path="imageVerify">
             <NInput v-model:value="formValue.imageVerify" placeholder="图片验证码" />
@@ -117,11 +103,8 @@ export default defineComponent({
           </NFormItem>
         </NForm>
         <div class="footer">
-          <NSpace>
-            <NButton secondary type="info" @click="goTo('/register')">新建账号</NButton>
-            <NButton secondary type="info" @click="goTo('/forget')">找回密码</NButton>
-          </NSpace>
-          <NButton type="primary" @click="handleValidateClick">登录</NButton>
+          <NButton secondary type="info" @click="goTo('/login')">返回登录</NButton>
+          <NButton type="primary" @click="handleValidateClick">找回密码</NButton>
         </div>
       </div>
     </div>

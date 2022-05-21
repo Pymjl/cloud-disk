@@ -62,3 +62,27 @@ export const register = (username: string, nickname: string, password: string, v
       message: string
     }
   }>
+
+/**
+ * 找回密码
+ * @param username 用户名
+ * @param verifyCode 邮箱验证码
+ * @returns 仅状态响应体，result 为 null
+ */
+export const recovery = (username: string, verifyCode: string) => {
+  const data = new FormData()
+  data.append('username', username)
+  data.append('verifyCode', verifyCode)
+
+  return ARFactory({
+    url: '/reset/password',
+    method: 'post',
+    data
+  }) as Promise<{
+    succeed: boolean
+    res: {
+      result: null
+      message: string
+    }
+  }>
+}

@@ -20,6 +20,14 @@ const routes: Array<RouteRecordRaw> = [
     component: () => import('@/views/Login.vue')
   },
   {
+    path: '/forget',
+    name: 'ForgetPage',
+    meta: {
+      title: '企业云盘 - 找回密码'
+    },
+    component: () => import('@/views/Forget.vue')
+  },
+  {
     path: '/register',
     name: 'RegisterPage',
     meta: {
