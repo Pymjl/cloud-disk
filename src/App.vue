@@ -6,8 +6,6 @@ export default defineComponent({
   // 注册了一些全局状态
   provide: {
     randomId: ref(''),
-    // FIXME 这里配合后端将 emailKey 设置为非空以屏蔽邮箱验证
-    emailKey: ref('123'),
     userInfo: ref({
       id: 0,
       username: '',

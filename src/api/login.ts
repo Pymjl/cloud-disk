@@ -25,14 +25,13 @@ export const getEmailVerify = (username: string, key: string, code: string) =>
  * @param username 用户名
  * @param password 密码
  * @param verifyCode 邮箱验证码
- * @param verifyKey 邮箱验证码标识
  * @returns 通用响应体，result 为 Token
  */
-export const login = (username: string, password: string, verifyCode: string, verifyKey: string) =>
+export const login = (username: string, password: string, verifyCode: string) =>
   ARFactory({
     url: '/login',
     method: 'post',
-    data: { username, password, verifyCode, verifyKey }
+    data: { username, password, verifyCode }
   }) as Promise<{
     succeed: boolean
     res: {
@@ -47,14 +46,29 @@ export const login = (username: string, password: string, verifyCode: string, ve
  * @param nickname 昵称
  * @param password 密码
  * @param verifyCode 邮箱验证码
- * @param verifyKey 邮箱验证码标识
  * @returns 仅状态响应体，result 为 null
  */
-export const register = (username: string, nickname: string, password: string, verifyCode: string, verifyKey: string) =>
+export const register = (username: string, nickname: string, password: string, verifyCode: string) =>
   ARFactory({
     url: '/register',
     method: 'post',
-    data: { username, nickname, password, verifyCode, verifyKey }
+    data: { username, nickname, password, verifyCode }
+  }) as Promise<{
+    succeed: boolean
+    res: {
+      result: null
+      message: string
+    }
+  }>
+
+/**
+ * 登出
+ * @returns 仅状态响应体，result 为 null
+ */
+export const logout = () =>
+  ARFactory({
+    url: '/logout',
+    method: 'post'
   }) as Promise<{
     succeed: boolean
     res: {

@@ -1,5 +1,5 @@
 <script lang="ts">
-import { defineComponent, ref, inject, Ref } from 'vue'
+import { defineComponent, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { FormInst, useLoadingBar, useMessage } from 'naive-ui'
 import BgWrapper from '@/components/login/BgWrapper.vue'
@@ -19,9 +19,6 @@ export default defineComponent({
       loadingBar.start()
       router.push(to).then(() => loadingBar.finish())
     }
-
-    // emailKey 是从 App.vue 中注入的
-    const emailKey = inject('emailKey') as Ref<string>
 
     // 表单验证
     const formRef = ref<FormInst | null>(null)
@@ -58,7 +55,7 @@ export default defineComponent({
       formRef.value?.validate((errors) => {
         if (!errors) {
           // 表单验证通过即可登录
-          login(formValue.value.username, formValue.value.password, formValue.value.emailVerify, emailKey.value).then(
+          login(formValue.value.username, formValue.value.password, formValue.value.emailVerify).then(
             ({ succeed, res }) => {
               if (succeed) {
                 ls.setItem('token', res.result)

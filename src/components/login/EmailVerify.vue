@@ -22,9 +22,8 @@ export default defineComponent({
     const message = useMessage()
     const isLoading = ref(false)
 
-    // 下面两个响应式变量是从 App.vue 中注入的
+    // randomId 是从 App.vue 中注入的
     const randomId = inject('randomId') as Ref<string>
-    const emailKey = inject('emailKey') as Ref<string>
 
     const getCode = () => {
       isLoading.value = true
@@ -33,7 +32,6 @@ export default defineComponent({
           .then(
             ({ succeed, res }) => {
               if (succeed) {
-                emailKey.value = res.result
                 message.success('邮箱验证码发送成功，请检查您的邮箱')
               } else {
                 message.warning(res.message)
