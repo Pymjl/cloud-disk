@@ -22,3 +22,24 @@ export const getUserInfo = () =>
       message: string
     }
   }>
+
+/**
+ * 修改用户密码
+ * @returns 仅状态响应体，result 为 null
+ */
+export const changePassword = (password: string) => {
+  const data = new FormData()
+  data.append('password', password)
+
+  return ARFactory({
+    url: '/user/password',
+    method: 'patch',
+    data
+  }) as Promise<{
+    succeed: boolean
+    res: {
+      result: null
+      message: string
+    }
+  }>
+}

@@ -1,10 +1,11 @@
 <script lang="ts">
 import { defineComponent, inject, Ref } from 'vue'
 import TopNav from '@/components/public/TopNav.vue'
+import PersonalInformation from '@/components/user/Personal.vue'
 
 export default defineComponent({
   name: 'FilesPage',
-  components: { TopNav },
+  components: { TopNav, PersonalInformation },
   setup() {
     // 抽屉控制
     const personalActive = inject('personalActive') as Ref<boolean>
@@ -17,21 +18,17 @@ export default defineComponent({
 
 <template>
   <TopNav />
-  <p>FilesPage</p>
-  <n-drawer v-model:show="adminActive" :width="768">
-    <n-drawer-content>
-      <template #header>管理面板</template>
-      <template #footer>
-        <n-button>Footer</n-button>
-      </template>
-    </n-drawer-content>
-  </n-drawer>
-  <n-drawer v-model:show="personalActive" :width="512">
-    <n-drawer-content>
-      <template #header>个人信息</template>
-      <template #footer>
-        <n-button>Footer</n-button>
-      </template>
-    </n-drawer-content>
-  </n-drawer>
+  <div class="files-container">
+    <p>FilesPage</p>
+  </div>
+  <NDrawer v-model:show="adminActive" :width="768">
+    <NDrawerContent title="管理面板" closable>
+      <h1>管理面板</h1>
+    </NDrawerContent>
+  </NDrawer>
+  <NDrawer v-model:show="personalActive" :width="384">
+    <NDrawerContent title="个人信息" closable>
+      <PersonalInformation />
+    </NDrawerContent>
+  </NDrawer>
 </template>
