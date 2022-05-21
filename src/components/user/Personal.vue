@@ -1,7 +1,7 @@
 <script lang="ts">
 import { defineComponent, inject, ref, Ref } from 'vue'
 import { FormInst, FormItemRule, useMessage } from 'naive-ui'
-import { changePassword } from '@/api/user'
+import { uploadAvatar, changePassword, changeNickname } from '@/api/user'
 
 export default defineComponent({
   name: 'PersonalInformation',
@@ -16,6 +16,60 @@ export default defineComponent({
       createTime: number
       updateTime: number
     }>
+
+    // 头像上传处理
+    const handleAvatar = () => {
+      const input = document.createElement('input') as HTMLInputElement
+      input.type = 'file'
+      input.onchange = () => {
+        if (!input.files) return
+        if (!input.files[0]) return
+        uploadAvatar(input.files[0]).then(
+          ({ succeed, res }) => {
+            if (succeed) {
+              userInfo.value.avatar = res.result
+              message.success('头像上传成功')
+            } else {
+              message.warning(res.message)
+            }
+          },
+          (err) => {
+            if (err.response) {
+              // 服务器响应状态码不属于 2xx
+              message.error(err.response.data.error)
+            } else if (err.request) {
+              // 未收到服务器响应
+              message.error('头像上传失败，请检查您的网络')
+            }
+          }
+        )
+      }
+      input.click()
+    }
+
+    // 昵称变更处理
+    const nickname = ref(userInfo.value.nickname)
+    const handleNickname = () => {
+      changeNickname(nickname.value).then(
+        ({ succeed, res }) => {
+          if (succeed) {
+            userInfo.value.nickname = nickname.value
+            message.success('昵称修改成功')
+          } else {
+            message.warning(res.message)
+          }
+        },
+        (err) => {
+          if (err.response) {
+            // 服务器响应状态码不属于 2xx
+            message.error(err.response.data.error)
+          } else if (err.request) {
+            // 未收到服务器响应
+            message.error('昵称修改失败，请检查您的网络')
+          }
+        }
+      )
+    }
 
     // 表单验证
     const formRef = ref<FormInst | null>(null)
@@ -62,7 +116,7 @@ export default defineComponent({
                 message.error(err.response.data.error)
               } else if (err.request) {
                 // 未收到服务器响应
-                message.error('注册请求发送失败，请检查您的网络')
+                message.error('密码修改请求发送失败，请检查您的网络')
               }
             }
           )
@@ -70,7 +124,7 @@ export default defineComponent({
       })
     }
 
-    return { userInfo, formRef, formValue, rules, handleValidateClick }
+    return { userInfo, nickname, formRef, formValue, rules, handleAvatar, handleNickname, handleValidateClick }
   }
 })
 </script>
@@ -81,14 +135,14 @@ export default defineComponent({
       <template #header-extra>您在本系统使用的头像</template>
       <div style="display: flex; align-items: center; justify-content: space-evenly">
         <n-avatar round :size="96" :src="userInfo.avatar" />
-        <NButton secondary type="info">修改头像</NButton>
+        <NButton secondary type="info" @click="handleAvatar">上传新头像</NButton>
       </div>
     </NCollapseItem>
     <NCollapseItem title="昵称设置" name="nickname">
       <template #header-extra>您在本系统使用的昵称</template>
       <NInputGroup>
-        <NInput :default-value="userInfo.nickname" placeholder="请输入昵称" />
-        <NButton type="info">修改昵称</NButton>
+        <NInput v-model:value="nickname" placeholder="请输入昵称" @keydown.enter="handleNickname" />
+        <NButton type="info" @click="handleNickname">修改昵称</NButton>
       </NInputGroup>
     </NCollapseItem>
     <NCollapseItem title="密码设置" name="password">
@@ -101,7 +155,7 @@ export default defineComponent({
           <NInput v-model:value="formValue.confirm" type="password" show-password-on="mousedown" placeholder="确认密码" />
         </NFormItem>
         <NFormItem style="float: right">
-          <NButton type="warning">修改密码</NButton>
+          <NButton type="warning" @click="handleValidateClick">修改密码</NButton>
         </NFormItem>
       </NForm>
     </NCollapseItem>
