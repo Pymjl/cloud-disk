@@ -5,6 +5,7 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    Admin: typeof import('./src/components/admin/Admin.vue')['default']
     BgWrapper: typeof import('./src/components/login/BgWrapper.vue')['default']
     EmailVerify: typeof import('./src/components/login/EmailVerify.vue')['default']
     ImageVerify: typeof import('./src/components/login/ImageVerify.vue')['default']
@@ -12,6 +13,7 @@ declare module '@vue/runtime-core' {
     NButton: typeof import('naive-ui')['NButton']
     NCollapse: typeof import('naive-ui')['NCollapse']
     NCollapseItem: typeof import('naive-ui')['NCollapseItem']
+    NDataTable: typeof import('naive-ui')['NDataTable']
     NDialogProvider: typeof import('naive-ui')['NDialogProvider']
     NDrawer: typeof import('naive-ui')['NDrawer']
     NDrawerContent: typeof import('naive-ui')['NDrawerContent']

@@ -1,11 +1,12 @@
 <script lang="ts">
 import { defineComponent, inject, Ref } from 'vue'
 import TopNav from '@/components/public/TopNav.vue'
+import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
 
 export default defineComponent({
   name: 'FilesPage',
-  components: { TopNav, PersonalInformation },
+  components: { TopNav, AdminPanel, PersonalInformation },
   setup() {
     // 抽屉控制
     const personalActive = inject('personalActive') as Ref<boolean>
@@ -23,7 +24,7 @@ export default defineComponent({
   </div>
   <NDrawer v-model:show="adminActive" :width="768">
     <NDrawerContent title="管理面板" closable>
-      <h1>管理面板</h1>
+      <AdminPanel />
     </NDrawerContent>
   </NDrawer>
   <NDrawer v-model:show="personalActive" :width="384">
