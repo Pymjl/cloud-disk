@@ -36,9 +36,8 @@ public interface UserService extends IService<User> {
      * @param uid   uid
      * @param code  代码
      * @param email 电子邮件
-     * @return {@code String}
      */
-    String getEmailVerifyCode(String uid, String code, String email);
+    void getEmailVerifyCode(String uid, String code, String email);
 
     /**
      * 登录
@@ -92,12 +91,10 @@ public interface UserService extends IService<User> {
     /**
      * 重置密码
      *
-     * @param verifyKey  验证关键
      * @param verifyCode 验证代码
-     * @param token      令牌
-     * @param userId     用户id
+     * @param username   用户名
      */
-    void resetPassword(String verifyKey, String verifyCode, String token, Long userId);
+    void resetPassword(String username, String verifyCode);
 
     /**
      * 更新密码
@@ -122,5 +119,12 @@ public interface UserService extends IService<User> {
      * @param id id
      */
     void deleteUserById(Long id);
+
+    /**
+     * 添加管理
+     *
+     * @param id id
+     */
+    void addAdmin(Long id);
 
 }

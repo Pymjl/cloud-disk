@@ -302,12 +302,8 @@ public class AliyunUtils {
             List<OSSObjectSummary> ossObjectSummaries = result.getObjectSummaries();
 
             List<String> res = new ArrayList<>();
-            log.info("该文件夹下的路径为：");
             for (OSSObjectSummary s : ossObjectSummaries) {
                 String fileName = s.getKey();
-//                if (fileName.contains(StringEnum.FILE_IGNORE_NAME.getValue())) {
-//                    continue;
-//                }
                 res.add(fileName);
             }
             return res;
@@ -469,7 +465,7 @@ public class AliyunUtils {
      * @param prefix 前缀
      */
     public static void deleteDirAndFiles(String prefix) {
-
+        log.info("开始删除前缀名为{}的文件", prefix);
         // 创建OSSClient实例。
         OSS ossClient = new OSSClientBuilder().build(endpoint, keyId, keySecret);
 
@@ -481,12 +477,11 @@ public class AliyunUtils {
                 ListObjectsRequest listObjectsRequest = new ListObjectsRequest(bucketName)
                         .withPrefix(prefix)
                         .withMarker(nextMarker);
-
                 objectListing = ossClient.listObjects(listObjectsRequest);
                 if (objectListing.getObjectSummaries().size() > 0) {
                     List<String> keys = new ArrayList<String>();
                     for (OSSObjectSummary s : objectListing.getObjectSummaries()) {
-                        System.out.println("key name: " + s.getKey());
+//                        System.out.println("key name: " + s.getKey());
                         keys.add(s.getKey());
                     }
                     DeleteObjectsRequest deleteObjectsRequest = new DeleteObjectsRequest(bucketName).withKeys(keys).withEncodingType("url");
@@ -548,8 +543,8 @@ public class AliyunUtils {
     /**
      * 复制文件夹(递归复制文件夹下面的文件)
      *
-     * @param sourcePath 源路径
-     * @param targetPath 目标路径
+     * @param sourcePath 源路径 eg: cloud-disk/files/1/foo/bar/
+     * @param targetPath 目标路径 eg: cloud-disk/files/1/foo/dest/
      */
     public static void copyFolder(String sourcePath, String targetPath) {
         List<String> list = listAllPath(sourcePath);
@@ -557,11 +552,12 @@ public class AliyunUtils {
         if (ObjectUtil.isEmpty(list)) {
             throw new AppException("云盘中还没有该文件夹或者文件");
         } else {
+            log.info("开始复制文件夹和文件......");
             //复制文件夹下的所有文件
             for (String path : list) {
-                String orginalFileName = path.substring(path.lastIndexOf("/", path.lastIndexOf("/") - 1) + 1);
+                String orginalFileName = path.replaceAll(sourcePath, "");
                 String dest = targetPath + orginalFileName;
-                log.info("dest==>" + dest);
+                log.info("start copy.....\norginalPath==>[{}]\ntargetPath==>[{}]", path, dest);
                 copyFile(path, dest);
             }
         }

@@ -23,7 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.io.IOException;
 
@@ -60,10 +59,8 @@ public class UserController {
     public Result<String> sendEmailCode(@NotBlank(message = "key不能为空") @RequestParam("key") String uid,
                                         @NotBlank(message = "图片验证码不能为空") @RequestParam("code") String code,
                                         @Email(message = "用户名格式异常,用户名必须为邮箱") @RequestParam("username") String email) {
-        //将key作为结果返回
-        System.out.println(uid);
-        String key = userService.getEmailVerifyCode(uid, code, email);
-        return ResultUtil.success(key);
+        userService.getEmailVerifyCode(uid, code, email);
+        return ResultUtil.success();
     }
 
     @PostMapping("/login")
@@ -112,14 +109,10 @@ public class UserController {
         return ResultUtil.success();
     }
 
-    @PatchMapping("/user/password/{verifyKey}/{verifyCode}")
-    public Result<String> resetPassword(HttpServletRequest request,
-                                        @PathVariable("verifyKey") String verifyKey,
-                                        @PathVariable("verifyCode") String verifyCode) {
-        String userId = (String) request.getAttribute("userId");
-        String token = (String) request.getAttribute("token");
-        check(userId, token);
-        userService.resetPassword(verifyKey, verifyCode, token, Long.parseLong(userId));
+    @PostMapping("/reset/password")
+    public Result<String> resetPassword(@NotBlank(message = "用户名不能为空") @RequestParam("username") String username,
+                                        @NotBlank(message = "验证码不能为空") @RequestParam("verifyCode") String verifyCode) {
+        userService.resetPassword(username, verifyCode);
         return ResultUtil.success(true, "重置密码成功，请重新登录");
     }
 

@@ -79,6 +79,55 @@ public class FilesController {
         return ResultUtil.success();
     }
 
+    @PatchMapping("/update/file")
+    public Result<String> updateFileName(@NotNull(message = "文件名不能为空") @RequestParam("originPath") String originPath,
+                                         @NotNull(message = "文件名不能为空") @RequestParam("targetPath") String targetPath,
+                                         HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.updateFileName(targetPath, originPath, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+    @PatchMapping("/update/folder")
+    public Result<String> updateFolder(@NotNull(message = "文件名不能为空") @RequestParam("originPath") String originPath,
+                                       @NotNull(message = "文件名不能为空") @RequestParam("targetPath") String targetPath,
+                                       HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.updateFolderName(targetPath, originPath, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+    @PostMapping("/copy")
+    public Result<String> copyFileOrFolder(@NotNull(message = "文件名不能为空") @RequestParam("originPath") String originPath,
+                                           @NotNull(message = "文件名不能为空") @RequestParam("targetPath") String targetPath,
+                                           HttpServletRequest request) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.copyFileOrDirectory(originPath, targetPath, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+    @DeleteMapping("/file")
+    public Result<String> deleteFile(HttpServletRequest request,
+                                     @RequestParam("path") String path) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.deleteFileOrFolder(path, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+    @PostMapping("/folder")
+    public Result<String> addFolder(HttpServletRequest request,
+                                    @RequestParam("path") String path) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        filesService.addFolder(path, Long.parseLong(userId));
+        return ResultUtil.success();
+    }
+
+
     /**
      * 检查
      *

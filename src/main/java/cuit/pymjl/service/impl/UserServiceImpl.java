@@ -86,7 +86,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public String getEmailVerifyCode(String uid, String code, String email) {
+    public void getEmailVerifyCode(String uid, String code, String email) {
         //先验证图片验证码
         Object imageCode = redisUtil.get(uid);
         if (null == imageCode || "".equals(imageCode)) {
@@ -100,24 +100,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //开始生成邮箱验证码
         log.info("图片验证码验证成功,开始生成邮箱验证码......");
         String verifyCode = getRandomString(VERIFY_CODE_LENGTH);
-        String key = UUID.randomUUID().toString().replaceAll("-", "");
         log.info("邮箱验证码为==>{},开始发送邮件......", verifyCode);
         MailUtil.send(email, StringEnum.MAIL_SUBJECT_VERIFY_CODE.getValue(),
                 StringEnum.getVerifyMailMessage(verifyCode), false);
-        redisUtil.set(key, verifyCode, EXPIRATION);
-        return key;
+        redisUtil.set(email, verifyCode, EXPIRATION);
     }
 
     @Override
     public String login(UserDTO userDTO) {
         //验证验证码
         //FIXME 开发阶段，暂时注销验证码功能，可以直接登录
-//        log.info("开始验证邮箱验证码==>[{}]......", userDTO.getVerifyCode());
-//        String code = (String) redisUtil.get(userDTO.getVerifyKey());
-//        redisUtil.del(userDTO.getVerifyKey());
-//        if (StrUtil.isBlank(code) || !code.equals(userDTO.getVerifyCode())) {
-//            throw new AppException("邮箱验证码错误");
-//        }
+        log.info("开始验证邮箱验证码==>[{}]......", userDTO.getVerifyCode());
+        String code = (String) redisUtil.get(userDTO.getUsername());
+        redisUtil.del(userDTO.getUsername());
+        if (StrUtil.isBlank(code) || !code.equals(userDTO.getVerifyCode())) {
+            throw new AppException("邮箱验证码错误");
+        }
 
         //校验账号
         log.info("邮箱验证码验证成功，开始校验用户账号......");
@@ -141,8 +139,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Boolean register(UserInfoDTO userInfoDTO) {
         //先验证邮箱验证码
         log.info("开始验证邮箱验证码......");
-        String code = (String) redisUtil.get(userInfoDTO.getVerifyKey());
-        redisUtil.del(userInfoDTO.getVerifyKey());
+        String code = (String) redisUtil.get(userInfoDTO.getUsername());
+        redisUtil.del(userInfoDTO.getUsername());
         if (null == code || !code.equals(userInfoDTO.getVerifyCode())) {
             throw new AppException("邮箱验证码错误");
         }
@@ -209,11 +207,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public void resetPassword(String verifyKey, String verifyCode, String token, Long userId) {
+    public void resetPassword(String username, String verifyCode) {
         //先验证邮箱密码
         log.info("开始校验邮箱验证码.......");
-        String code = (String) redisUtil.get(verifyKey);
-        redisUtil.del(verifyKey);
+        String code = (String) redisUtil.get(username);
+        redisUtil.del(username);
         if (null == code || !code.equals(verifyCode)) {
             throw new AppException("邮箱验证码错误，请重试");
         }
@@ -221,18 +219,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         //开始生成新的随机密码，通过邮箱发送
         log.info("邮箱验证码校验成功");
         String newPassword = getRandomString(IntegerEnum.RESET_PASSWORD_LENGTH.getValue());
-        User user = baseMapper.selectById(userId);
-        MailUtil.send(user.getUsername(), StringEnum.MAIL_SUBJECT_RESET_PASSWORD.getValue(),
-                StringEnum.getRestPasswordMessage(newPassword), false);
         //更新数据库
-        new LambdaUpdateChainWrapper<>(baseMapper)
-                .eq(User::getId, userId)
+        boolean update = new LambdaUpdateChainWrapper<>(baseMapper)
+                .eq(User::getUsername, username)
                 .set(User::getPassword, PasswordUtils.encrypt(newPassword))
                 .set(User::getUpdateTime, new Date())
                 .update();
+        if (!update) {
+            throw new AppException("不存在该用户");
+        }
+        MailUtil.send(username, StringEnum.MAIL_SUBJECT_RESET_PASSWORD.getValue(),
+                StringEnum.getRestPasswordMessage(newPassword), false);
         log.info("重置密码成功");
-        //强制登出
-        this.logout(token);
     }
 
     @Override
@@ -280,6 +278,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             e.printStackTrace();
             throw new AppException("不存在该用户");
         }
+    }
+
+    @Override
+    public void addAdmin(Long id) {
+        new LambdaUpdateChainWrapper<>(baseMapper)
+                .eq(User::getId, id)
+                .set(User::getIdentity, IdentityEnum.ADMIN.getIdentity())
+                .set(User::getUpdateTime, new Date())
+                .update();
     }
 
     /**

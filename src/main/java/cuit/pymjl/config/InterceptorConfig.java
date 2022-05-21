@@ -28,6 +28,7 @@ public class InterceptorConfig extends WebMvcConfigurationSupport {
                 .excludePathPatterns("/register")
                 .excludePathPatterns("/codes/image/**")
                 .excludePathPatterns("/codes/email")
+                .excludePathPatterns("/reset/password")
                 .excludePathPatterns("/**/*.html", "/**/*.js", "/**/*.css")
                 .excludePathPatterns("/swagger-ui.html")
                 .excludePathPatterns("/swagger-resources/**")

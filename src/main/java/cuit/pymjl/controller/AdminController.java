@@ -37,4 +37,10 @@ public class AdminController {
         userService.deleteUserById(id);
         return ResultUtil.success();
     }
+
+    @PatchMapping("/user/{id}")
+    public Result<String> addAdmin(@PathVariable("id") Long id) {
+        userService.addAdmin(id);
+        return ResultUtil.success();
+    }
 }

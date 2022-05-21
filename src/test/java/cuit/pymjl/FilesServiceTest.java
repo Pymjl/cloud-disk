@@ -29,28 +29,47 @@ class FilesServiceTest {
 
     @Test
     void updateFileName() {
-        filesService.updateFileName("dest/bar/test3.webp", "dest/bar/test2.webp", 1L);
+        filesService.updateFileName("foo/bar/update/test/default01.jpg", "foo/bar/update/test/default.jpg", 1L);
+    }
+
+    @Test
+    void updateFolderName() {
+        filesService.updateFolderName("foo/bar/update/test/", "foo/bar/update/dest/", 1L);
     }
 
     @Test
     void deleteFileOrDir() {
-        filesService.deleteFileOrFolder("foo/bar/t0.png", 1L);
+        filesService.deleteFileOrFolder("foo/bar/", 1L);
     }
 
     @Test
     void moveFile() {
-        filesService.moveFile("foo/bar/pymjl/regedit.exe", "foo/bar/regedit.exe", 1L);
+        filesService.moveFile("foo/dest/default.jpg", "foo/bar/default.jpg", 1L);
+    }
+
+    @Test
+    void moveFolder() {
+        filesService.moveFolder("foo/bar/dest/", "foo/bar/", 1L);
+    }
+
+    @Test
+    void deleteFileOrFolder() {
+        filesService.deleteFileOrFolder("foo/bar/update/test/", 1L);
     }
 
     @Test
     void deleteFileForever() {
-        String name = "cloud-disk/files/1/foo/bar/";
-        if (name.contains(".")) {
-            String fileName = name.substring(0, name.lastIndexOf("/") + 1);
-            System.out.println(fileName);
-        } else {
-            System.out.println(name);
-        }
+        filesService.deleteFileForever("foo/bar/update/test/", 1L);
+    }
+
+    @Test
+    void addFolder() {
+        filesService.addFolder("foo/ggg/", 1L);
+    }
+
+    @Test
+    void copyFloder() {
+        filesService.copyFileOrDirectory("foo/dest/", "foo/bar/", 1L);
     }
 
 }

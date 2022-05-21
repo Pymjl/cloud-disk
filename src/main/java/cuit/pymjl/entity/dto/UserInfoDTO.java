@@ -45,10 +45,4 @@ public class UserInfoDTO {
      */
     @NotBlank(message = "邮箱验证码不能为空")
     private String verifyCode;
-
-    /**
-     * 验证key
-     */
-    @NotBlank(message = "邮箱验证码标识key不能为空")
-    private String verifyKey;
 }

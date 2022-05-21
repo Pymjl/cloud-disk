@@ -28,7 +28,4 @@ public class UserDTO {
 
     @NotBlank(message = "验证码不能为空")
     private String verifyCode;
-
-    @NotBlank(message = "验证标识不能为空")
-    private String verifyKey;
 }

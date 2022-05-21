@@ -93,10 +93,9 @@ public class AliyunUtilsTest {
 
     @Test
     void testCopyFolder() {
-//        AliyunUtils.copyFolder("cloud-disk/files/1/foo/bar/regedit.exe", "dest/");
-        String path = "cloud-disk/files/1/foo/bar/pymjl/";
-        String oo=path.substring(0,path.lastIndexOf("/",path.lastIndexOf("/")-1));
-        System.out.println(oo);
+        String path = "cloud-disk/files/1/foo/bar/default.jpg";
+        String target = "cloud-disk/files/1/foo/dest/default.jpg";
+        AliyunUtils.copyFolder(path, target);
     }
 
     @Test
@@ -106,7 +105,8 @@ public class AliyunUtilsTest {
 
     @Test
     void testDeleteFile() {
-        AliyunUtils.deleteFile(StringEnum.FILE_DEFAULT_PREFIX.getValue() + 1L + "/foo/bar/t1.png");
+        String prefix = "cloud-disk/files/1/foo/bar/default.jpg";
+        System.out.println(prefix.substring(0, prefix.lastIndexOf("/") + 1));
     }
 
     @Test
