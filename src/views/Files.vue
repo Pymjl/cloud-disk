@@ -2,7 +2,7 @@
 import { Component, defineComponent, h, inject, nextTick, onMounted, reactive, ref, Ref, toRefs } from 'vue'
 import { NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import { Add, Folder, Document, VolumeFileStorage, TrashCan } from '@vicons/carbon'
-import { getFileList, getTrashList, uploadFile, newFolder } from '@/api/files'
+import { getFileList, getTrashList, uploadFile, newFolder, moveFile, moveFolder } from '@/api/files'
 import TopNav from '@/components/public/TopNav.vue'
 import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
@@ -12,9 +12,13 @@ export default defineComponent({
   name: 'FilesPage',
   components: { TopNav, Add, CustomDropdown, AdminPanel, PersonalInformation },
   setup() {
+    // 文件列表项类型
+    type FileItem = { type: string; name: string; link: string | null }
+
     const message = useMessage()
     const dialog = useDialog()
     const inputValue = ref('')
+    const currentItem = ref({}) as Ref<FileItem>
 
     // 抽屉控制
     const personalActive = inject('personalActive') as Ref<boolean>
@@ -24,9 +28,6 @@ export default defineComponent({
     function renderIcon(icon: Component) {
       return () => h(NIcon, null, { default: () => h(icon) })
     }
-
-    // 文件列表项类型
-    type FileItem = { type: string; name: string; link: string | null }
 
     // 组件内状态
     const state = reactive({
@@ -69,11 +70,11 @@ export default defineComponent({
     ]
     const handleMenuUpdate = (value: string) => {
       state.mode = value
-      fetchList()
+      refreshList()
     }
 
     // 获取文件列表
-    const fetchList = () => {
+    const refreshList = async () => {
       state.loading = true
       let func = null
       switch (state.mode) {
@@ -85,7 +86,7 @@ export default defineComponent({
           break
       }
       if (func) {
-        func(state.path).then(
+        await func(state.path).then(
           ({ succeed, res }) => {
             if (succeed) {
               if (res.result) {
@@ -126,7 +127,7 @@ export default defineComponent({
       const path = state.path.split('/')
       path.pop()
       state.path = path.join('/')
-      fetchList()
+      refreshList()
     }
 
     // 上传文件
@@ -141,7 +142,7 @@ export default defineComponent({
           .then(
             ({ succeed, res }) => {
               if (succeed) {
-                fetchList()
+                refreshList()
                 message.success('文件上传成功')
               } else {
                 message.warning(res.message)
@@ -167,7 +168,7 @@ export default defineComponent({
     // 新建文件夹
     const mkdir = () => {
       dialog.info({
-        title: '创建文件夹',
+        title: '新建文件夹',
         content: () =>
           h(NInput, {
             placeholder: '请输入文件夹名称',
@@ -176,36 +177,43 @@ export default defineComponent({
         positiveText: '确定',
         negativeText: '取消',
         onPositiveClick: () => {
-          newFolder(state.path ? `${state.path}/${inputValue.value}` : inputValue.value).then(
-            ({ succeed, res }) => {
-              if (succeed) {
-                fetchList()
-                message.success('新建文件夹成功')
-              } else {
-                message.warning(res.message)
+          if (inputValue.value) {
+            newFolder(state.path ? `${state.path}/${inputValue.value}` : inputValue.value).then(
+              ({ succeed, res }) => {
+                if (succeed) {
+                  refreshList()
+                  message.success('新建文件夹成功')
+                } else {
+                  message.warning(res.message)
+                }
+              },
+              (err) => {
+                if (err.response) {
+                  // 服务器响应状态码不属于 2xx
+                  message.error(err.response.data.error)
+                } else if (err.request) {
+                  // 未收到服务器响应
+                  message.error('请求发送失败，请检查您的网络')
+                }
               }
-            },
-            (err) => {
-              if (err.response) {
-                // 服务器响应状态码不属于 2xx
-                message.error(err.response.data.error)
-              } else if (err.request) {
-                // 未收到服务器响应
-                message.error('请求发送失败，请检查您的网络')
-              }
-            }
-          )
+            )
+          } else {
+            message.warning('请输入文件夹名称')
+            return false
+          }
         }
       })
     }
 
-    // 右键菜单
+    // 菜单
     const dropdownType = ref('')
     const dropdownFlag = ref(false)
     const xRef = ref(0)
     const yRef = ref(0)
+
+    // 新建按钮菜单
     const openNewDropdown = (e: MouseEvent) => {
-      e.preventDefault()
+      if (e.target instanceof HTMLElement && !e.target.classList.contains('n-data-table-td')) e.preventDefault()
       dropdownType.value = 'new'
       xRef.value = e.clientX
       yRef.value = e.clientY
@@ -213,6 +221,38 @@ export default defineComponent({
         // 通过更新 dropdownFlag 触发组件更新
         dropdownFlag.value = !dropdownFlag.value
       })
+    }
+
+    // 文件列表列处理
+    const rowProps = (row: FileItem) => {
+      return {
+        ondblclick: () => {
+          if (row.type === 'dir') {
+            if (!state.path) {
+              state.path = row.name
+            } else {
+              state.path = `${state.path}/${row.name}`
+            }
+            refreshList()
+          } else {
+            // 打开文件
+            if (row.link) window.open(row.link)
+          }
+        },
+        onContextmenu: (e: MouseEvent) => {
+          e.preventDefault()
+          // 将当前行数据存入 currentItem
+          currentItem.value = row
+          // 这里通过 state.mode 先判断在哪个模式，再传入不同的菜单类型
+          dropdownType.value = state.mode === 'files' ? row.type : 'trash'
+          xRef.value = e.clientX
+          yRef.value = e.clientY
+          nextTick().then(() => {
+            // 通过更新 dropdownFlag 触发组件更新
+            dropdownFlag.value = !dropdownFlag.value
+          })
+        }
+      }
     }
 
     // 右键菜单选择处理
@@ -224,11 +264,112 @@ export default defineComponent({
         case 'upload-file':
           upload()
           break
+        case 'rename-file':
+          inputValue.value = currentItem.value.name
+          dialog.info({
+            title: '重命名文件',
+            content: () =>
+              h(NInput, {
+                defaultValue: inputValue.value,
+                placeholder: '请输入文件名',
+                onUpdateValue: (value) => (inputValue.value = value)
+              }),
+            positiveText: '确定',
+            negativeText: '取消',
+            onPositiveClick: () => {
+              if (inputValue.value) {
+                moveFile(
+                  `${state.path ? state.path + '/' : ''}${currentItem.value.name}`,
+                  `${state.path ? state.path + '/' : ''}${inputValue.value}`
+                ).then(
+                  ({ succeed, res }) => {
+                    if (succeed) {
+                      refreshList()
+                      message.success('重命名文件成功')
+                    } else {
+                      message.warning(res.message)
+                      return false
+                    }
+                  },
+                  (err) => {
+                    if (err.response) {
+                      // 服务器响应状态码不属于 2xx
+                      message.error(err.response.data.error)
+                    } else if (err.request) {
+                      // 未收到服务器响应
+                      message.error('请求发送失败，请检查您的网络')
+                    }
+                  }
+                )
+              } else {
+                message.warning('请输入文件名')
+              }
+            }
+          })
+          break
+        case 'copy-file':
+          // Code here
+          break
+        case 'move-file':
+          // Code here
+          break
+        case 'del-file':
+          // Code here
+          break
+        case 'rename-folder':
+          inputValue.value = currentItem.value.name
+          dialog.info({
+            title: '重命名文件夹',
+            content: () =>
+              h(NInput, {
+                defaultValue: inputValue.value,
+                placeholder: '请输入文件夹名',
+                onUpdateValue: (value) => (inputValue.value = value)
+              }),
+            positiveText: '确定',
+            negativeText: '取消',
+            onPositiveClick: () => {
+              if (inputValue.value) {
+                moveFolder(`${state.path ? state.path + '/' : ''}${currentItem.value.name}/`, `${state.path ? state.path + '/' : ''}`).then(
+                  ({ succeed, res }) => {
+                    if (succeed) {
+                      refreshList()
+                      message.success('重命名文件夹成功')
+                    } else {
+                      message.warning(res.message)
+                      return false
+                    }
+                  },
+                  (err) => {
+                    if (err.response) {
+                      // 服务器响应状态码不属于 2xx
+                      message.error(err.response.data.error)
+                    } else if (err.request) {
+                      // 未收到服务器响应
+                      message.error('请求发送失败，请检查您的网络')
+                    }
+                  }
+                )
+              } else {
+                message.warning('请输入文件夹名')
+              }
+            }
+          })
+          break
+        case 'copy-folder':
+          // Code here
+          break
+        case 'move-folder':
+          // Code here
+          break
+        case 'del-folder':
+          // Code here
+          break
       }
     }
 
     onMounted(() => {
-      fetchList()
+      refreshList()
     })
 
     return {
@@ -241,9 +382,10 @@ export default defineComponent({
       xRef,
       yRef,
       ...toRefs(state),
+      rowProps,
+      openNewDropdown,
       handleMenuUpdate,
       backParent,
-      openNewDropdown,
       handleSelected
     }
   }
@@ -274,7 +416,7 @@ export default defineComponent({
           <NBreadcrumbItem v-if="path">{{ path.substring(path.lastIndexOf('/') + 1) }}</NBreadcrumbItem>
         </NBreadcrumb>
       </div>
-      <NDataTable :loading="loading" :columns="columns" :data="list" :bordered="false" />
+      <NDataTable class="data-list" :loading="loading" :columns="columns" :row-props="rowProps" :data="list" :bordered="false" />
     </NLayoutContent>
   </NLayout>
   <CustomDropdown :flag="dropdownFlag" :type="dropdownType" :x="xRef" :y="yRef" @selected="handleSelected" />
@@ -299,12 +441,19 @@ export default defineComponent({
   }
 
   .toolbar {
-    padding: 0.5rem 0.75rem;
+    display: flex;
+    align-items: center;
+    height: calc(2.75rem - 1px);
+    padding: 0 0.75rem;
     border-bottom: 1px solid #eee;
 
     .n-breadcrumb-item {
       font-size: 1rem;
     }
+  }
+
+  .n-data-table {
+    height: calc(100vh - 6.25rem);
   }
 
   .n-data-table-thead,
