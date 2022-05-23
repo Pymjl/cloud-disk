@@ -10,6 +10,8 @@ declare module '@vue/runtime-core' {
     EmailVerify: typeof import('./src/components/login/EmailVerify.vue')['default']
     ImageVerify: typeof import('./src/components/login/ImageVerify.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
+    NBreadcrumb: typeof import('naive-ui')['NBreadcrumb']
+    NBreadcrumbItem: typeof import('naive-ui')['NBreadcrumbItem']
     NButton: typeof import('naive-ui')['NButton']
     NCollapse: typeof import('naive-ui')['NCollapse']
     NCollapseItem: typeof import('naive-ui')['NCollapseItem']

@@ -1,7 +1,8 @@
 <script lang="ts">
-import { Component, defineComponent, h, inject, reactive, Ref, toRefs } from 'vue'
-import { NIcon } from 'naive-ui'
+import { Component, defineComponent, h, inject, onMounted, reactive, Ref, toRefs } from 'vue'
+import { NIcon, useMessage } from 'naive-ui'
 import { Add, Folder, Document, VolumeFileStorage, TrashCan } from '@vicons/carbon'
+import { getFileList } from '@/api/files'
 import TopNav from '@/components/public/TopNav.vue'
 import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
@@ -10,6 +11,8 @@ export default defineComponent({
   name: 'FilesPage',
   components: { TopNav, Add, AdminPanel, PersonalInformation },
   setup() {
+    const message = useMessage()
+
     // 抽屉控制
     const personalActive = inject('personalActive') as Ref<boolean>
     const adminActive = inject('adminActive') as Ref<boolean>
@@ -27,16 +30,11 @@ export default defineComponent({
       // mode 指示显示何种文件列表
       mode: 'files',
       // 加载状态
-      loading: false,
-      // 当前路径
+      loading: true,
+      // 当前路径，根目录为空字符串，目录间用 / 分隔，末尾无 /
       path: '',
       // 列表数据
-      list: [
-        { type: 'dir', name: '目录1', link: null },
-        { type: 'dir', name: '目录2', link: null },
-        { type: 'file', name: '文件1', link: '1.1.1.1' },
-        { type: 'file', name: '文件2', link: '1.1.1.1' }
-      ] as FileItem[]
+      list: [] as FileItem[]
     })
 
     // 文件列表
@@ -70,7 +68,57 @@ export default defineComponent({
       state.mode = value
     }
 
-    return { personalActive, adminActive, menuOptions, columns, ...toRefs(state), handleMenuUpdate }
+    // 获取文件列表
+    const fetchList = () => {
+      state.loading = true
+      getFileList(state.path).then(
+        ({ succeed, res }) => {
+          if (succeed) {
+            if (res.result) {
+              // 处理带 / 后缀的文件夹名称
+              state.list = res.result.map((item) => {
+                if (item.type === 'dir' && item.name.endsWith('/')) {
+                  item.name = item.name.slice(0, -1)
+                }
+                return item
+              })
+            } else {
+              // 进入了空文件夹
+              state.list = []
+            }
+          } else {
+            state.path = ''
+            state.list = []
+            message.warning(res.message)
+          }
+        },
+        (err) => {
+          if (err.response) {
+            // 服务器响应状态码不属于 2xx
+            message.error(err.response.data.error)
+          } else if (err.request) {
+            // 未收到服务器响应
+            message.error('登录请求发送失败，请检查您的网络')
+          }
+        }
+      )
+      state.loading = false
+    }
+
+    // 返回上一级
+    const backParent = () => {
+      if (state.path === '') return
+      const path = state.path.split('/')
+      path.pop()
+      state.path = path.join('/')
+      fetchList()
+    }
+
+    onMounted(() => {
+      fetchList()
+    })
+
+    return { personalActive, adminActive, menuOptions, columns, ...toRefs(state), handleMenuUpdate, backParent }
   }
 })
 </script>
@@ -92,7 +140,14 @@ export default defineComponent({
       <NMenu default-value="files" :options="menuOptions" @update:value="handleMenuUpdate" />
     </NLayoutSider>
     <NLayoutContent>
-      <NDataTable :loading="loading" :columns="columns" :data="list" />
+      <div class="toolbar">
+        <NBreadcrumb>
+          <NBreadcrumbItem v-if="path.includes('/')" @click="backParent">{{ path.split('/')[path.split('/').length - 2] }}</NBreadcrumbItem>
+          <NBreadcrumbItem v-else @click="backParent">{{ mode === 'files' ? '我的文件' : '回收站' }}</NBreadcrumbItem>
+          <NBreadcrumbItem v-if="path">{{ path.substring(path.lastIndexOf('/') + 1) }}</NBreadcrumbItem>
+        </NBreadcrumb>
+      </div>
+      <NDataTable :loading="loading" :columns="columns" :data="list" :bordered="false" />
     </NLayoutContent>
   </NLayout>
   <NDrawer v-model:show="adminActive" :width="768">
@@ -115,13 +170,27 @@ export default defineComponent({
     padding: 0.75rem 1rem 0.5rem;
   }
 
+  .toolbar {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid #eee;
+
+    .n-breadcrumb-item {
+      font-size: 1rem;
+    }
+  }
+
+  .n-data-table-thead,
+  .n-data-table-th {
+    background-color: transparent;
+  }
+
   .n-data-table-td {
     display: flex;
     align-items: center;
 
     span {
       margin-left: 0.5rem;
-      font-size: 0.9rem;
+      font-size: 1rem;
       line-height: 22px;
     }
   }

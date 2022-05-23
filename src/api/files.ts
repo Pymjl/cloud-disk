@@ -37,11 +37,11 @@ export const getFileList = (path: string) =>
   }) as Promise<{
     succeed: boolean
     res: {
-      result: {
+      result: Array<{
         type: string
         name: string
         link: string | null
-      }
+      }>
       message: string
     }
   }>
@@ -196,11 +196,11 @@ export const getTrashList = (path: string) =>
   }) as Promise<{
     succeed: boolean
     res: {
-      result: {
+      result: Array<{
         type: string
         name: string
         link: string | null
-      }
+      }>
       message: string
     }
   }>
