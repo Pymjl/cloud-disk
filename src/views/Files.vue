@@ -19,6 +19,7 @@ export default defineComponent({
     const dialog = useDialog()
     const inputValue = ref('')
     const currentItem = ref({}) as Ref<FileItem>
+    const showModal = ref(false)
 
     // 抽屉控制
     const personalActive = inject('personalActive') as Ref<boolean>
@@ -373,6 +374,7 @@ export default defineComponent({
     })
 
     return {
+      showModal,
       personalActive,
       adminActive,
       menuOptions,
@@ -396,6 +398,7 @@ export default defineComponent({
   <TopNav />
   <NLayout has-sider class="files-container">
     <NLayoutSider bordered>
+      <!-- 蓝色新建大按钮 -->
       <div class="new-btn">
         <NButton secondary type="info" size="large" round :disabled="mode !== 'files'" @click="openNewDropdown">
           <template #icon>
@@ -406,6 +409,7 @@ export default defineComponent({
           新建
         </NButton>
       </div>
+      <!-- 侧栏导航 -->
       <NMenu default-value="files" :options="menuOptions" @update:value="handleMenuUpdate" />
     </NLayoutSider>
     <NLayoutContent>
@@ -416,15 +420,27 @@ export default defineComponent({
           <NBreadcrumbItem v-if="path">{{ path.substring(path.lastIndexOf('/') + 1) }}</NBreadcrumbItem>
         </NBreadcrumb>
       </div>
+      <!-- 文件列表 -->
       <NDataTable class="data-list" :loading="loading" :columns="columns" :row-props="rowProps" :data="list" :bordered="false" />
     </NLayoutContent>
   </NLayout>
+  <!-- 复制/移动位置选择 -->
+  <NModal v-model:show="showModal" preset="card" title="请选择目标文件夹" style="max-width: 25rem">
+    <!-- TODO 实现复制/移动位置选择 -->
+    暂时不知道怎么做
+    <template #footer>
+      <NButton type="primary" style="float: right">确认</NButton>
+    </template>
+  </NModal>
+  <!-- 右键菜单 -->
   <CustomDropdown :flag="dropdownFlag" :type="dropdownType" :x="xRef" :y="yRef" @selected="handleSelected" />
+  <!-- 管理面板 -->
   <NDrawer v-model:show="adminActive" :width="768">
     <NDrawerContent title="管理面板" closable>
       <AdminPanel />
     </NDrawerContent>
   </NDrawer>
+  <!-- 个人信息 -->
   <NDrawer v-model:show="personalActive" :width="384">
     <NDrawerContent title="个人信息" closable>
       <PersonalInformation />
