@@ -11,9 +11,10 @@ export const uploadFile = (path: string, file: File) => {
   data.append('path', path)
   data.append('file', file)
 
-  ARFactory({
+  return ARFactory({
     url: `/files/upload`,
     method: 'post',
+    data,
     timeout: 600000
   }) as Promise<{
     succeed: boolean
@@ -57,7 +58,7 @@ export const moveFile = (originPath: string, targetPath: string) => {
   data.append('originPath', originPath)
   data.append('targetPath', targetPath)
 
-  ARFactory({
+  return ARFactory({
     url: `/files/move/file`,
     method: 'post',
     data
@@ -81,7 +82,7 @@ export const moveFolder = (originPath: string, targetPath: string) => {
   data.append('originPath', originPath)
   data.append('targetPath', targetPath)
 
-  ARFactory({
+  return ARFactory({
     url: `/files/move/folder`,
     method: 'post',
     data
@@ -105,7 +106,7 @@ export const copyFile = (originPath: string, targetPath: string) => {
   data.append('originPath', originPath)
   data.append('targetPath', targetPath)
 
-  ARFactory({
+  return ARFactory({
     url: `/files/copy`,
     method: 'post',
     data
@@ -129,8 +130,8 @@ export const copyFolder = (originPath: string, targetPath: string) => {
   data.append('originPath', originPath)
   data.append('targetPath', targetPath)
 
-  ARFactory({
-    url: `/files/copy`,
+  return ARFactory({
+    url: `/folders/copy`,
     method: 'post',
     data
   }) as Promise<{
@@ -142,17 +143,19 @@ export const copyFolder = (originPath: string, targetPath: string) => {
   }>
 }
 
-// FIXME 此接口有问题，需要确认文档
 /**
  * 新建文件夹
  * @param path 文件夹自身路径
  * @returns 仅状态返回体，result 为 null
  */
-export const newFolder = (path: string) =>
-  ARFactory({
-    url: `/folder`,
+export const newFolder = (path: string) => {
+  const data = new FormData()
+  data.append('path', path)
+
+  return ARFactory({
+    url: `/files/folder`,
     method: 'post',
-    params: { path }
+    data
   }) as Promise<{
     succeed: boolean
     res: {
@@ -160,6 +163,7 @@ export const newFolder = (path: string) =>
       message: string
     }
   }>
+}
 
 /**
  * 将文件或者文件夹添加到回收站
@@ -170,7 +174,7 @@ export const moveToTrash = (path: string) => {
   const data = new FormData()
   data.append('path', path)
 
-  ARFactory({
+  return ARFactory({
     url: `/files/file`,
     method: 'delete',
     data
