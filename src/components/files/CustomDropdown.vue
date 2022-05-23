@@ -23,7 +23,8 @@ export default defineComponent({
       required: true
     }
   },
-  setup(props) {
+  emits: ['selected'],
+  setup(props, { emit }) {
     const showDropdown = ref(false)
     const options = [] as DropdownOption[]
 
@@ -45,16 +46,17 @@ export default defineComponent({
               key: 'new-folder'
             })
             options.push({
-              label: '新建文件',
+              label: '上传文件',
               icon: renderIcon(DocumentAdd),
-              key: 'new-file'
+              key: 'upload-file'
             })
             break
         }
       }
     )
 
-    const handleSelect = () => {
+    const handleSelect = (value: string) => {
+      emit('selected', value)
       showDropdown.value = false
     }
     const onClickOutside = () => {
