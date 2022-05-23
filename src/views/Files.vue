@@ -1,15 +1,16 @@
 <script lang="ts">
-import { Component, defineComponent, h, inject, onMounted, reactive, Ref, toRefs } from 'vue'
+import { Component, defineComponent, h, inject, nextTick, onMounted, reactive, ref, Ref, toRefs } from 'vue'
 import { NIcon, useMessage } from 'naive-ui'
 import { Add, Folder, Document, VolumeFileStorage, TrashCan } from '@vicons/carbon'
 import { getFileList } from '@/api/files'
 import TopNav from '@/components/public/TopNav.vue'
 import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
+import CustomDropdown from '@/components/files/CustomDropdown.vue'
 
 export default defineComponent({
   name: 'FilesPage',
-  components: { TopNav, Add, AdminPanel, PersonalInformation },
+  components: { TopNav, Add, CustomDropdown, AdminPanel, PersonalInformation },
   setup() {
     const message = useMessage()
 
@@ -114,11 +115,40 @@ export default defineComponent({
       fetchList()
     }
 
+    // 打开右键菜单
+    const dropdownType = ref('')
+    const dropdownFlag = ref(false)
+    const xRef = ref(0)
+    const yRef = ref(0)
+    const openNewDropdown = (e: MouseEvent) => {
+      e.preventDefault()
+      dropdownType.value = 'new'
+      xRef.value = e.clientX
+      yRef.value = e.clientY
+      nextTick().then(() => {
+        // 通过更新 dropdownFlag 触发组件更新
+        dropdownFlag.value = !dropdownFlag.value
+      })
+    }
+
     onMounted(() => {
       fetchList()
     })
 
-    return { personalActive, adminActive, menuOptions, columns, ...toRefs(state), handleMenuUpdate, backParent }
+    return {
+      personalActive,
+      adminActive,
+      menuOptions,
+      columns,
+      dropdownType,
+      dropdownFlag,
+      xRef,
+      yRef,
+      ...toRefs(state),
+      handleMenuUpdate,
+      backParent,
+      openNewDropdown
+    }
   }
 })
 </script>
@@ -128,7 +158,7 @@ export default defineComponent({
   <NLayout has-sider class="files-container">
     <NLayoutSider bordered>
       <div class="new-btn">
-        <NButton secondary type="info" size="large" round>
+        <NButton secondary type="info" size="large" round @click="openNewDropdown">
           <template #icon>
             <NIcon>
               <Add />
@@ -150,6 +180,7 @@ export default defineComponent({
       <NDataTable :loading="loading" :columns="columns" :data="list" :bordered="false" />
     </NLayoutContent>
   </NLayout>
+  <CustomDropdown :flag="dropdownFlag" :type="dropdownType" :x="xRef" :y="yRef" />
   <NDrawer v-model:show="adminActive" :width="768">
     <NDrawerContent title="管理面板" closable>
       <AdminPanel />

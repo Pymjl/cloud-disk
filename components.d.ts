@@ -7,6 +7,7 @@ declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Admin: typeof import('./src/components/admin/Admin.vue')['default']
     BgWrapper: typeof import('./src/components/login/BgWrapper.vue')['default']
+    CustomDropdown: typeof import('./src/components/files/CustomDropdown.vue')['default']
     EmailVerify: typeof import('./src/components/login/EmailVerify.vue')['default']
     ImageVerify: typeof import('./src/components/login/ImageVerify.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
