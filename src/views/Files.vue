@@ -137,7 +137,7 @@ export default defineComponent({
         if (!input.files) return
         if (!input.files[0]) return
         const msg = message.loading('上传中...', { duration: 0 })
-        uploadFile(state.path, input.files[0])
+        uploadFile(state.path ? `${state.path}/` : '', input.files[0])
           .then(
             ({ succeed, res }) => {
               if (succeed) {
