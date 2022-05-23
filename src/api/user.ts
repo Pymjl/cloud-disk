@@ -35,6 +35,7 @@ export const uploadAvatar = (file: File) => {
   return ARFactory({
     url: '/user/avatar',
     method: 'patch',
+    timeout: 600000,
     data
   }) as Promise<{
     succeed: boolean
