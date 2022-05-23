@@ -2,7 +2,7 @@
 import { Component, defineComponent, h, inject, nextTick, onMounted, reactive, ref, Ref, toRefs } from 'vue'
 import { NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import { Add, Folder, Document, VolumeFileStorage, TrashCan } from '@vicons/carbon'
-import { getFileList, getTrashList, uploadFile, newFolder, moveFile, moveFolder } from '@/api/files'
+import { getFileList, getTrashList, uploadFile, newFolder, moveFile, moveFolder, moveToTrash, deletePermanently } from '@/api/files'
 import TopNav from '@/components/public/TopNav.vue'
 import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
@@ -70,6 +70,7 @@ export default defineComponent({
       }
     ]
     const handleMenuUpdate = (value: string) => {
+      state.path = ''
       state.mode = value
       refreshList()
     }
@@ -309,13 +310,31 @@ export default defineComponent({
           })
           break
         case 'copy-file':
-          // Code here
+          // TODO 复制文件
           break
         case 'move-file':
-          // Code here
+          // TODO 移动文件
           break
         case 'del-file':
-          // Code here
+          moveToTrash(`${state.path ? state.path + '/' : ''}${currentItem.value.name}`).then(
+            ({ succeed, res }) => {
+              if (succeed) {
+                refreshList()
+                message.success('删除文件成功')
+              } else {
+                message.warning(res.message)
+              }
+            },
+            (err) => {
+              if (err.response) {
+                // 服务器响应状态码不属于 2xx
+                message.error(err.response.data.error)
+              } else if (err.request) {
+                // 未收到服务器响应
+                message.error('请求发送失败，请检查您的网络')
+              }
+            }
+          )
           break
         case 'rename-folder':
           inputValue.value = currentItem.value.name
@@ -358,13 +377,59 @@ export default defineComponent({
           })
           break
         case 'copy-folder':
-          // Code here
+          // TODO 复制文件夹
           break
         case 'move-folder':
-          // Code here
+          // TODO 移动文件夹
           break
         case 'del-folder':
-          // Code here
+          moveToTrash(`${state.path ? state.path + '/' : ''}${currentItem.value.name}/`).then(
+            ({ succeed, res }) => {
+              if (succeed) {
+                refreshList()
+                message.success('删除文件夹成功')
+              } else {
+                message.warning(res.message)
+              }
+            },
+            (err) => {
+              if (err.response) {
+                // 服务器响应状态码不属于 2xx
+                message.error(err.response.data.error)
+              } else if (err.request) {
+                // 未收到服务器响应
+                message.error('请求发送失败，请检查您的网络')
+              }
+            }
+          )
+          break
+        case 'restore':
+          // TODO 恢复文件/文件夹
+          break
+        case 'delete':
+          deletePermanently(
+            currentItem.value.type === 'file'
+              ? `${state.path ? state.path + '/' : ''}${currentItem.value.name}`
+              : `${state.path ? state.path + '/' : ''}${currentItem.value.name}/`
+          ).then(
+            ({ succeed, res }) => {
+              if (succeed) {
+                refreshList()
+                message.success(`永久删除${currentItem.value.type === 'file' ? '文件' : '文件夹'}成功`)
+              } else {
+                message.warning(res.message)
+              }
+            },
+            (err) => {
+              if (err.response) {
+                // 服务器响应状态码不属于 2xx
+                message.error(err.response.data.error)
+              } else if (err.request) {
+                // 未收到服务器响应
+                message.error('请求发送失败，请检查您的网络')
+              }
+            }
+          )
           break
       }
     }
