@@ -8,7 +8,7 @@ import {
   uploadFile,
   newFolder,
   moveFile,
-  moveFolder,
+  renameFolder,
   moveToTrash,
   deletePermanently,
   recover
@@ -376,7 +376,10 @@ export default defineComponent({
             negativeText: '取消',
             onPositiveClick: () => {
               if (inputValue.value) {
-                moveFolder(`${state.path ? state.path + '/' : ''}${currentItem.value.name}/`, `${state.path ? state.path + '/' : ''}`).then(
+                renameFolder(
+                  `${state.path ? state.path + '/' : ''}${currentItem.value.name}/`,
+                  `${state.path ? state.path + '/' : ''}${inputValue.value}/`
+                ).then(
                   ({ succeed, res }) => {
                     if (succeed) {
                       refreshList()

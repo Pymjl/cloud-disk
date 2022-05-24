@@ -96,6 +96,30 @@ export const moveFolder = (originPath: string, targetPath: string) => {
 }
 
 /**
+ * 更改文件夹名称
+ * @param originPath 原来的文件夹路径
+ * @param targetPath 目标文件夹路径
+ * @returns 仅状态返回体，result 为 null
+ */
+export const renameFolder = (originPath: string, targetPath: string) => {
+  const data = new FormData()
+  data.append('originPath', originPath)
+  data.append('targetPath', targetPath)
+
+  return ARFactory({
+    url: `/files/update/folder`,
+    method: 'patch',
+    data
+  }) as Promise<{
+    succeed: boolean
+    res: {
+      result: null
+      message: string
+    }
+  }>
+}
+
+/**
  * 复制文件
  * @param originPath 原来的完整文件路径名，eg. test/dir/RC.jpg
  * @param targetPath 复制后的文件路径名，eg. test/dir/RC-1.jpg
