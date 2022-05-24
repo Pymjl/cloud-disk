@@ -437,7 +437,11 @@ export default defineComponent({
           )
           break
         case 'restore':
-          recover(`${state.path ? state.path + '/' : ''}${currentItem.value.name}/`).then(
+          recover(
+            currentItem.value.type === 'file'
+              ? `${state.path ? state.path + '/' : ''}${currentItem.value.name}`
+              : `${state.path ? state.path + '/' : ''}${currentItem.value.name}/`
+          ).then(
             ({ succeed, res }) => {
               if (succeed) {
                 refreshList()
