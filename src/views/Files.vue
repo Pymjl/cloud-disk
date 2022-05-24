@@ -7,10 +7,11 @@ import TopNav from '@/components/public/TopNav.vue'
 import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
 import CustomDropdown from '@/components/files/CustomDropdown.vue'
+import FolderSelect from '@/components/files/FolderSelect.vue'
 
 export default defineComponent({
   name: 'FilesPage',
-  components: { TopNav, Add, CustomDropdown, AdminPanel, PersonalInformation },
+  components: { TopNav, Add, CustomDropdown, AdminPanel, PersonalInformation, FolderSelect },
   setup() {
     // 文件列表项类型
     type FileItem = { type: string; name: string; link: string | null }
@@ -229,6 +230,8 @@ export default defineComponent({
     const rowProps = (row: FileItem) => {
       return {
         ondblclick: () => {
+          // 在回收站中不允许打开文件或目录
+          if (state.mode === 'trash') return
           if (row.type === 'dir') {
             if (!state.path) {
               state.path = row.name
@@ -434,6 +437,29 @@ export default defineComponent({
       }
     }
 
+    // 清空回收站
+    const emptyTrash = () => {
+      deletePermanently('').then(
+        ({ succeed, res }) => {
+          if (succeed) {
+            refreshList()
+            message.success('清空回收站成功')
+          } else {
+            message.warning(res.message)
+          }
+        },
+        (err) => {
+          if (err.response) {
+            // 服务器响应状态码不属于 2xx
+            message.error(err.response.data.error)
+          } else if (err.request) {
+            // 未收到服务器响应
+            message.error('请求发送失败，请检查您的网络')
+          }
+        }
+      )
+    }
+
     onMounted(() => {
       refreshList()
     })
@@ -453,7 +479,8 @@ export default defineComponent({
       openNewDropdown,
       handleMenuUpdate,
       backParent,
-      handleSelected
+      handleSelected,
+      emptyTrash
     }
   }
 })
@@ -484,18 +511,15 @@ export default defineComponent({
           <NBreadcrumbItem v-else @click="backParent">{{ mode === 'files' ? '我的文件' : '回收站' }}</NBreadcrumbItem>
           <NBreadcrumbItem v-if="path">{{ path.substring(path.lastIndexOf('/') + 1) }}</NBreadcrumbItem>
         </NBreadcrumb>
+        <NButton v-if="mode === 'trash'" secondary style="margin-left: auto" @click="emptyTrash">清空回收站</NButton>
       </div>
       <!-- 文件列表 -->
       <NDataTable class="data-list" :loading="loading" :columns="columns" :row-props="rowProps" :data="list" :bordered="false" />
     </NLayoutContent>
   </NLayout>
   <!-- 复制/移动位置选择 -->
-  <NModal v-model:show="showModal" preset="card" title="请选择目标文件夹" style="max-width: 25rem">
-    <!-- TODO 实现复制/移动位置选择 -->
-    暂时不知道怎么做
-    <template #footer>
-      <NButton type="primary" style="float: right">确认</NButton>
-    </template>
+  <NModal v-model:show="showModal" preset="card" title="请选择目标文件夹" style="max-width: 25rem; max-height: 100vh">
+    <FolderSelect />
   </NModal>
   <!-- 右键菜单 -->
   <CustomDropdown :flag="dropdownFlag" :type="dropdownType" :x="xRef" :y="yRef" @selected="handleSelected" />

@@ -9,6 +9,7 @@ declare module '@vue/runtime-core' {
     BgWrapper: typeof import('./src/components/login/BgWrapper.vue')['default']
     CustomDropdown: typeof import('./src/components/files/CustomDropdown.vue')['default']
     EmailVerify: typeof import('./src/components/login/EmailVerify.vue')['default']
+    FolderSelect: typeof import('./src/components/files/FolderSelect.vue')['default']
     ImageVerify: typeof import('./src/components/login/ImageVerify.vue')['default']
     NAvatar: typeof import('naive-ui')['NAvatar']
     NBreadcrumb: typeof import('naive-ui')['NBreadcrumb']
