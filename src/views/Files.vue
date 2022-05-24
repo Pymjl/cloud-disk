@@ -247,8 +247,6 @@ export default defineComponent({
     const rowProps = (row: FileItem) => {
       return {
         ondblclick: () => {
-          // 在回收站中不允许打开文件或目录
-          if (state.mode === 'trash') return
           if (row.type === 'dir') {
             if (!state.path) {
               state.path = row.name
