@@ -120,30 +120,6 @@ export const copyFile = (originPath: string, targetPath: string) => {
 }
 
 /**
- * 复制文件夹
- * @param originPath 原始路径 eg: foo/dest/
- * @param targetPath 目标路径 eg: foo/bar/，移动后的目录为 foo/bar/dest/xxx
- * @returns 仅状态返回体，result 为 null
- */
-export const copyFolder = (originPath: string, targetPath: string) => {
-  const data = new FormData()
-  data.append('originPath', originPath)
-  data.append('targetPath', targetPath)
-
-  return ARFactory({
-    url: `/folders/copy`,
-    method: 'post',
-    data
-  }) as Promise<{
-    succeed: boolean
-    res: {
-      result: null
-      message: string
-    }
-  }>
-}
-
-/**
  * 新建文件夹
  * @param path 文件夹自身路径
  * @returns 仅状态返回体，result 为 null

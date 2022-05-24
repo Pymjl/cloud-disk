@@ -330,10 +330,16 @@ export default defineComponent({
           })
           break
         case 'copy-file':
-          // TODO 复制文件
+          folderSelectProps.type = 'file'
+          folderSelectProps.mode = 'copy'
+          folderSelectProps.path = `${state.path ? state.path + '/' : ''}${currentItem.value.name}`
+          showModal.value = true
           break
         case 'move-file':
-          // TODO 移动文件
+          folderSelectProps.type = 'file'
+          folderSelectProps.mode = 'move'
+          folderSelectProps.path = `${state.path ? state.path + '/' : ''}${currentItem.value.name}`
+          showModal.value = true
           break
         case 'del-file':
           moveToTrash(`${state.path ? state.path + '/' : ''}${currentItem.value.name}`).then(
@@ -397,10 +403,16 @@ export default defineComponent({
           })
           break
         case 'copy-folder':
-          // TODO 复制文件夹
+          folderSelectProps.type = 'dir'
+          folderSelectProps.mode = 'copy'
+          folderSelectProps.path = `${state.path ? state.path + '/' : ''}${currentItem.value.name}/`
+          showModal.value = true
           break
         case 'move-folder':
-          // TODO 移动文件夹
+          folderSelectProps.type = 'dir'
+          folderSelectProps.mode = 'move'
+          folderSelectProps.path = `${state.path ? state.path + '/' : ''}${currentItem.value.name}/`
+          showModal.value = true
           break
         case 'del-folder':
           moveToTrash(`${state.path ? state.path + '/' : ''}${currentItem.value.name}/`).then(
@@ -472,6 +484,12 @@ export default defineComponent({
       }
     }
 
+    // 处理文件夹选择
+    const handleFolderSelected = () => {
+      showModal.value = false
+      refreshList()
+    }
+
     // 清空回收站
     const emptyTrash = () => {
       deletePermanently('').then(
@@ -515,6 +533,7 @@ export default defineComponent({
       openNewDropdown,
       handleMenuUpdate,
       backParent,
+      handleFolderSelected,
       handleSelected,
       emptyTrash
     }
@@ -559,7 +578,7 @@ export default defineComponent({
       :mode="folderSelectProps.mode"
       :type="folderSelectProps.type"
       :path="folderSelectProps.path"
-      @selected="showModal = false"
+      @selected="handleFolderSelected"
     />
   </NModal>
   <!-- 右键菜单 -->
