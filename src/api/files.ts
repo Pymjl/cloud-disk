@@ -226,3 +226,21 @@ export const deletePermanently = (path: string) =>
       message: string
     }
   }>
+
+/**
+ * 恢复回收站中的文件或文件夹
+ * @param path 要恢复的文件或文件夹路径
+ * @returns 仅状态返回体，result 为 null
+ */
+export const recover = (path: string) =>
+  ARFactory({
+    url: `/trash/recover`,
+    method: 'post',
+    params: { path }
+  }) as Promise<{
+    succeed: boolean
+    res: {
+      result: null
+      message: string
+    }
+  }>

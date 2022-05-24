@@ -2,7 +2,17 @@
 import { Component, defineComponent, h, inject, nextTick, onMounted, reactive, ref, Ref, toRefs } from 'vue'
 import { NIcon, NInput, useDialog, useMessage } from 'naive-ui'
 import { Add, Folder, Document, VolumeFileStorage, TrashCan } from '@vicons/carbon'
-import { getFileList, getTrashList, uploadFile, newFolder, moveFile, moveFolder, moveToTrash, deletePermanently } from '@/api/files'
+import {
+  getFileList,
+  getTrashList,
+  uploadFile,
+  newFolder,
+  moveFile,
+  moveFolder,
+  moveToTrash,
+  deletePermanently,
+  recover
+} from '@/api/files'
 import TopNav from '@/components/public/TopNav.vue'
 import AdminPanel from '@/components/admin/Admin.vue'
 import PersonalInformation from '@/components/user/Personal.vue'
@@ -41,6 +51,13 @@ export default defineComponent({
       path: '',
       // 列表数据
       list: [] as FileItem[]
+    })
+
+    // 路径选择组件参数
+    const folderSelectProps = reactive({
+      mode: '',
+      type: '',
+      path: ''
     })
 
     // 文件列表
@@ -407,7 +424,25 @@ export default defineComponent({
           )
           break
         case 'restore':
-          // TODO 恢复文件/文件夹
+          recover(`${state.path ? state.path + '/' : ''}${currentItem.value.name}/`).then(
+            ({ succeed, res }) => {
+              if (succeed) {
+                refreshList()
+                message.success('恢复成功')
+              } else {
+                message.warning(res.message)
+              }
+            },
+            (err) => {
+              if (err.response) {
+                // 服务器响应状态码不属于 2xx
+                message.error(err.response.data.error)
+              } else if (err.request) {
+                // 未收到服务器响应
+                message.error('请求发送失败，请检查您的网络')
+              }
+            }
+          )
           break
         case 'delete':
           deletePermanently(
@@ -474,6 +509,7 @@ export default defineComponent({
       dropdownFlag,
       xRef,
       yRef,
+      folderSelectProps,
       ...toRefs(state),
       rowProps,
       openNewDropdown,
@@ -518,8 +554,13 @@ export default defineComponent({
     </NLayoutContent>
   </NLayout>
   <!-- 复制/移动位置选择 -->
-  <NModal v-model:show="showModal" preset="card" title="请选择目标文件夹" style="max-width: 25rem; max-height: 100vh">
-    <FolderSelect />
+  <NModal v-model:show="showModal" preset="card" size="small" title="请选择目标文件夹" style="max-width: 25rem; max-height: 100vh">
+    <FolderSelect
+      :mode="folderSelectProps.mode"
+      :type="folderSelectProps.type"
+      :path="folderSelectProps.path"
+      @selected="showModal = false"
+    />
   </NModal>
   <!-- 右键菜单 -->
   <CustomDropdown :flag="dropdownFlag" :type="dropdownType" :x="xRef" :y="yRef" @selected="handleSelected" />
