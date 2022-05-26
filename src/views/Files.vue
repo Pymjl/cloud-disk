@@ -157,6 +157,13 @@ export default defineComponent({
       input.onchange = () => {
         if (!input.files) return
         if (!input.files[0]) return
+        // 判断文件是否已经存在
+        for (const item of state.list) {
+          if (item.type === 'file' && item.name === input.files[0].name) {
+            message.warning('文件已存在')
+            return
+          }
+        }
         const msg = message.loading('上传中...', { duration: 0 })
         uploadFile(state.path ? `${state.path}/` : '', input.files[0])
           .then(
@@ -198,6 +205,13 @@ export default defineComponent({
         negativeText: '取消',
         onPositiveClick: () => {
           if (inputValue.value) {
+            // 判断文件夹是否已经存在
+            for (const item of state.list) {
+              if (item.type === 'dir' && item.name === inputValue.value) {
+                message.warning('文件夹已存在')
+                return false
+              }
+            }
             newFolder(state.path ? `${state.path}/${inputValue.value}` : inputValue.value).then(
               ({ succeed, res }) => {
                 if (succeed) {
