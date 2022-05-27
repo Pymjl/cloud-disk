@@ -146,7 +146,7 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
         while (targetPath.startsWith(SEPARATOR)) {
             targetPath = targetPath.substring(1, targetPath.length());
         }
-        if (!originalPath.endsWith(SEPARATOR) || !targetPath.endsWith(SEPARATOR)) {
+        if (!originalPath.endsWith(SEPARATOR)) {
             throw new AppException("文件夹不符合规范");
         }
         String sourcePath = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + originalPath;
@@ -272,5 +272,28 @@ public class FilesServiceImpl extends ServiceImpl<FilesMapper, File> implements 
         AliyunUtils.deleteDirAndFiles(originalPath);
         //因为阿里云OSS不支持文件夹的概念，一旦删除，不会保留空文件夹，所以需要创建一个空的文件夹占位
         makeIgnoreFile(originalPath);
+    }
+
+    @Override
+    public void recoverFolder(String fileName, Long userId) {
+        log.info("开始恢复文件.......");
+        if (!fileName.endsWith(SEPARATOR)) {
+            throw new AppException("文件名不符合规范");
+        }
+        //拼接文件名
+        String file = StringEnum.FILE_DEFAULT_GARBAGE_PREFIX.getValue() + userId + SEPARATOR + fileName;
+        log.info("要恢复的文件为==>{}", file);
+        String target = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + fileName;
+        moveFolder(file, target);
+    }
+
+    @Override
+    public void recoverFile(String fileName, Long userId) {
+        log.info("开始恢复文件.......");
+        //拼接文件名
+        String file = StringEnum.FILE_DEFAULT_GARBAGE_PREFIX.getValue() + userId + SEPARATOR + fileName;
+        log.info("要恢复的文件为==>{}", file);
+        String target = StringEnum.FILE_DEFAULT_PREFIX.getValue() + userId + SEPARATOR + fileName;
+        moveFile(file, target);
     }
 }

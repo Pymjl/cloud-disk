@@ -7,7 +7,7 @@ package cuit.pymjl.constant;
  **/
 public enum StringEnum {
     /**
-     * TODO 用户默认头像,用fdfs
+     * 用户默认头像
      */
     USER_DEFAULT_AVATAR("user/avatar/default/default.jpg"),
     /**
@@ -20,7 +20,7 @@ public enum StringEnum {
     /**
      * 主题：重置密码，用于重置密码时的邮件主题
      */
-    MAIL_SUBJECT_RESET_PASSWORD("重置密码"),
+    MAIL_SUBJECT_RESET_PASSWORD("重置 密码"),
     MAIL_SUBJECT_VERIFY_CODE("邮箱验证码"),
     MAIL_MESSAGE_VERIFY_CODE_PREFIX("亲爱的用户您好:\n\t您的邮箱验证码是："),
     MAIL_MESSAGE_VERIFY_CODE_SUFFIX("有效期为五分钟,请及时使用!"),

@@ -41,6 +41,20 @@ public class GarbageController {
         return ResultUtil.success();
     }
 
+
+    @PostMapping("/recover")
+    public Result<String> recover(HttpServletRequest request,
+                                  @RequestParam("path") String path) {
+        String userId = (String) request.getAttribute("userId");
+        check(userId);
+        if (path.contains(".")) {
+            filesService.recoverFile(path, Long.parseLong(userId));
+        } else {
+            filesService.recoverFolder(path, Long.parseLong(userId));
+        }
+        return ResultUtil.success();
+    }
+
     /**
      * 检查
      *

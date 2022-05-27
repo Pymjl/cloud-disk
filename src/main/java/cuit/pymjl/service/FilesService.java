@@ -123,4 +123,20 @@ public interface FilesService extends IService<File> {
      */
     void addFolder(String folderName, Long userId);
 
+    /**
+     * 恢复文件
+     *
+     * @param fileName 文件名称
+     * @param userId   用户id
+     */
+    void recoverFile(String fileName, Long userId);
+
+    /**
+     * 恢复文件夹
+     *
+     * @param fileName 文件名称
+     * @param userId   用户id
+     */
+    void recoverFolder(String fileName, Long userId);
+
 }
