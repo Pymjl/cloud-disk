@@ -58,7 +58,7 @@ public class AliyunUtils {
     /**
      * RAM账户ARM信息
      */
-    private static final String ROLE_ARN = "acs:ram::1225219690532977:role/pymjl";
+    private static final String ROLE_ARN = "xxxxxxxxxx";
     /**
      * STS接入地址，例如sts.cn-hangzhou.aliyuncs.com。
      */
