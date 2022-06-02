@@ -42,14 +42,14 @@
 datasource: 
     type: com.alibaba.druid.pool.DruidDataSource #数据源，这里用的Druid
     driver-class-name: com.mysql.cj.jdbc.Driver #驱动
-    url: jdbc:mysql://106.12.167.1:3309/cloud_disk?useSSL=false&useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-    username: epoch #数据库用户名
-    password: yWtNp6TT4dfbPBrW #密码
+    url: jdbc:mysql://localhost:3306/cloud_disk?useSSL=false&useUnicode=true&characterEncoding=utf-8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+    username:  #数据库用户名
+    password:  #密码
     
 redis:
-    host: 106.12.167.1 #redis主机
-    port: 9999 #redis端口
-    password: Include020116 #密码
+    host:  #redis主机
+    port:  #redis端口
+    password: #密码
     database: 1
     lettuce:
       pool:
@@ -62,12 +62,12 @@ aliyun:
   oss:
     file:
       #地域节点参数
-      endpoint: oss-cn-shanghai.aliyuncs.com
+      endpoint: 
       #自己的AccessKey id和密钥参数
-      keyId: LTAI5t67HB3DcZyQhrDtfkCz
-      keySecret: HabwxAzd3DL6D1UOJy1mlnBj4rk0lq
+      keyId: 
+      keySecret: 
       #bucket参数 可以在控制台创建，也可以使用java代码创建
-      bucketName: pymjl-cloud-disk
+      bucketName: 
 ```
 
 mail.setting
